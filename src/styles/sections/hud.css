@@ -1,0 +1,77 @@
+/* ============ HUD — TIMECODE PERMANENT ============ */
+
+.hud {
+  position: fixed;
+  top: var(--letterbox);
+  left: 0;
+  right: 0;
+  z-index: var(--z-hud);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.9rem var(--gouttiere);
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.18em;
+  color: var(--ivoire-doux);
+  pointer-events: none;
+  mix-blend-mode: difference;
+}
+
+.hud > * {
+  pointer-events: auto;
+}
+
+.hud-brand {
+  color: var(--ivoire);
+  font-size: 0.8rem;
+  letter-spacing: 0.34em;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.hud-rec {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rec);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hud-rec {
+    animation: rec-pulse 1.6s ease-in-out infinite;
+  }
+}
+
+@keyframes rec-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.hud-scene {
+  display: none;
+}
+
+.hud-tc {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-cta {
+  display: none;
+  color: var(--ivoire);
+  text-decoration: none;
+  border-bottom: 1px solid currentcolor;
+  padding-bottom: 2px;
+}
+
+.hud-cta:hover {
+  color: var(--tungstene);
+}
+
+@media (min-width: 760px) {
+  .hud-scene { display: block; }
+  .hud-cta { display: inline-block; }
+  .hud-tc { margin-left: auto; }
+}

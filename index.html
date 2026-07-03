@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Texture — Studio de création publicitaire IA</title>
+  <meta name="description" content="Texture donne de la matière aux marques : films publicitaires IA dirigés par un regard de réalisateur. De l'océan à la galaxie — le rendu d'un tournage à 40 000 €, livré en 3 semaines." />
+  <meta property="og:title" content="Texture — Votre marque a-t-elle de la texture ?" />
+  <meta property="og:description" content="Studio de création publicitaire IA, dirigé par un regard de réalisateur." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Instrument+Serif:ital@0;1&family=Space+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/src/styles/tokens.css" />
+  <link rel="stylesheet" href="/src/styles/global.css" />
+  <link rel="stylesheet" href="/src/styles/typography.css" />
+  <link rel="stylesheet" href="/src/styles/sections/loader.css" />
+  <link rel="stylesheet" href="/src/styles/sections/hud.css" />
+  <link rel="stylesheet" href="/src/styles/sections/galaxie.css" />
+  <link rel="stylesheet" href="/src/styles/sections/hero.css" />
+  <link rel="stylesheet" href="/src/styles/sections/manifeste.css" />
+  <link rel="stylesheet" href="/src/styles/sections/reel.css" />
+  <link rel="stylesheet" href="/src/styles/sections/methode.css" />
+  <link rel="stylesheet" href="/src/styles/sections/oeil.css" />
+  <link rel="stylesheet" href="/src/styles/sections/tarifs.css" />
+  <link rel="stylesheet" href="/src/styles/sections/generique.css" />
+</head>
+<body>
+  <a class="skip-link" href="#contenu">Aller au contenu</a>
+
+  <!-- AMORCE : compte à rebours de pellicule (masque le boot WebGL) -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader-ring"></div>
+    <div class="loader-count" id="loaderCount">3</div>
+    <div class="loader-sweep" id="loaderSweep"></div>
+    <p class="loader-label">TEXTURE — AMORCE 35&nbsp;MM</p>
+  </div>
+
+  <!-- HUD : timecode permanent + nom de scène -->
+  <header class="hud" id="hud">
+    <p class="hud-brand">TEXTURE<span class="hud-rec" aria-hidden="true"></span></p>
+    <p class="hud-scene" id="hudScene" aria-live="off">SCÈNE 00 — LA SURFACE</p>
+    <p class="hud-tc"><span id="hudTimecode">00:00:00:00</span></p>
+    <a class="hud-cta" href="mailto:hello@texture.studio">Prendre rendez-vous</a>
+  </header>
+
+  <!-- Barres letterbox 2.39:1 -->
+  <div class="letterbox letterbox--top" aria-hidden="true"></div>
+  <div class="letterbox letterbox--bottom" aria-hidden="true"></div>
+
+  <!-- Le plateau : la scène 3D « océan → galaxie » vit sur ce canvas unique -->
+  <canvas id="stage" aria-hidden="true"></canvas>
+
+  <!-- Flash de coupe : traversée de la surface + sortie de l'eau -->
+  <div class="flash" id="flash" aria-hidden="true"></div>
+
+  <div id="smooth-wrapper">
+    <div id="smooth-content">
+      <main id="contenu">
+
+        <!-- ============ SCÈNE 00 — LA SURFACE ============ -->
+        <section class="hero" id="hero" data-scene="SCÈNE 00 — LA SURFACE" aria-labelledby="hero-titre">
+          <div class="hero-inner" id="heroInner">
+            <p class="hero-sur">Studio de création publicitaire — IA, regard de réalisateur</p>
+            <h1 class="hero-titre" id="hero-titre">TEXTURE</h1>
+            <p class="hero-sous">Votre marque a-t-elle de la texture&nbsp;?</p>
+            <a class="btn btn--plein" href="mailto:hello@texture.studio">Prendre rendez-vous</a>
+          </div>
+          <p class="hero-scroll" id="heroScroll" aria-hidden="true">DÉROULEZ — LA PLONGÉE COMMENCE<span class="hero-scroll-trait"></span></p>
+        </section>
+
+        <!-- Transition : la caméra entre dans l'eau -->
+        <div class="transition transition--plongee" id="plongee" data-scene="COUPE — IMMERSION" aria-hidden="true"></div>
+
+        <!-- ============ SCÈNE 01 — SOUS LA SURFACE (manifeste) ============ -->
+        <section class="manifeste" id="manifeste" data-scene="SCÈNE 01 — SOUS LA SURFACE" aria-label="Manifeste">
+          <div class="manifeste-pin">
+            <p class="manifeste-ligne manifeste-l1" id="m1">L'IA a baissé le coût du plateau.</p>
+            <p class="manifeste-ligne manifeste-l2" id="m2">Pas celui du regard.</p>
+            <p class="manifeste-ligne manifeste-l3" id="m3">Découpage. Lumière. Rythme. Musique.<br />Ce qui fait un film reste un métier.</p>
+            <p class="manifeste-ligne manifeste-sceau" id="m4">Nous le pratiquons — avec les outils de 2026.</p>
+          </div>
+        </section>
+
+        <!-- Transition : la caméra sort de l'eau vers la galaxie -->
+        <div class="transition transition--sortie" id="sortie" data-scene="COUPE — ASCENSION" aria-hidden="true"></div>
+
+        <!-- ============ LA GALAXIE ============ -->
+        <div class="galaxie" id="galaxie">
+
+          <!-- ============ SCÈNE 02 — LA BOBINE ============ -->
+          <!-- ⚠ COMPORTEMENT PRÉSERVÉ À L'IDENTIQUE (voir DESIGN.md) :
+               écrans-vidéo flottants qui avancent au scroll dans l'espace.
+               Piloté par src/sections/reel.js + src/scenes/reel-lumiere.js. -->
+          <section class="reel" id="realisations" data-scene="SCÈNE 02 — LA BOBINE" aria-labelledby="reel-titre">
+            <div class="reel-pin">
+              <div class="reel-tete">
+                <h2 class="reel-titre" id="reel-titre">La bobine</h2>
+                <p class="reel-note">Des films déjà diffusés — TF1, retail international.<br />Déroulez&nbsp;: chaque plan vient à vous.</p>
+              </div>
+              <div class="reel-piste" id="reelPiste">
+
+                <article class="cadre" data-tc="01:12:08:14">
+                  <div class="cadre-perfos cadre-perfos--haut" aria-hidden="true"></div>
+                  <figure class="cadre-ecran">
+                    <video class="cadre-video" muted playsinline preload="auto" src="/assets/video/candia.mp4" data-lecture="auto" data-suite="/assets/video/candia-pekin.mp4" aria-label="Extrait — billboards Candia diffusés sur TF1"></video>
+                    <figcaption class="visually-hidden">Billboards sponsoring Candia sur TF1</figcaption>
+                  </figure>
+                  <div class="cadre-perfos cadre-perfos--bas" aria-hidden="true"></div>
+                  <div class="cadre-fiche">
+                    <p class="cadre-tag">SPONSORING TV</p>
+                    <h3 class="cadre-nom">Candia × TF1</h3>
+                    <p class="cadre-desc">Billboards diffusés autour de Danse avec les stars, Koh-Lanta, Pékin Express, L'Île de la tentation et Fort Boyard. Six mois d'antenne, des millions de téléspectateurs.</p>
+                  </div>
+                  <aside class="cadre-meta" aria-hidden="true">
+                    <p class="meta-ligne">PLAN 01 / 03</p>
+                    <p class="meta-ligne">TC 01:12:08:14</p>
+                    <p class="meta-ligne">DIFFUSION — TF1</p>
+                    <p class="meta-ligne">6 MOIS D'ANTENNE</p>
+                  </aside>
+                </article>
+
+                <article class="cadre" data-tc="02:04:21:02">
+                  <div class="cadre-perfos cadre-perfos--haut" aria-hidden="true"></div>
+                  <figure class="cadre-ecran">
+                    <video class="cadre-video" muted playsinline preload="metadata" src="/assets/video/xpeng.mp4" aria-label="Extrait — film produit XPeng et Samsung"></video>
+                    <figcaption class="visually-hidden">Film officiel XPeng × Samsung</figcaption>
+                  </figure>
+                  <div class="cadre-perfos cadre-perfos--bas" aria-hidden="true"></div>
+                  <div class="cadre-fiche">
+                    <p class="cadre-tag">FILM PRODUIT</p>
+                    <h3 class="cadre-nom">XPeng × Samsung</h3>
+                    <p class="cadre-desc">Film officiel pour les écrans 3D nouvelle génération. Diffusé en retail, Chine et Europe.</p>
+                  </div>
+                  <aside class="cadre-meta" aria-hidden="true">
+                    <p class="meta-ligne">PLAN 02 / 03</p>
+                    <p class="meta-ligne">TC 02:04:21:02</p>
+                    <p class="meta-ligne">RETAIL — CHINE &amp; EUROPE</p>
+                    <p class="meta-ligne">ÉCRANS 3D NOUVELLE GÉN.</p>
+                  </aside>
+                </article>
+
+                <article class="cadre" data-tc="03:48:02:19">
+                  <div class="cadre-perfos cadre-perfos--haut" aria-hidden="true"></div>
+                  <figure class="cadre-ecran">
+                    <video class="cadre-video" muted playsinline preload="metadata" src="/assets/video/fooh.mp4" aria-label="Extrait — FOOH produit en grandeur nature"></video>
+                    <figcaption class="visually-hidden">FOOH photoréaliste</figcaption>
+                  </figure>
+                  <div class="cadre-perfos cadre-perfos--bas" aria-hidden="true"></div>
+                  <div class="cadre-fiche">
+                    <p class="cadre-tag">SOCIAL / FOOH</p>
+                    <h3 class="cadre-nom">Grandeur nature</h3>
+                    <p class="cadre-desc">Le produit à l'échelle de la ville, photoréaliste. La capsule sociale qui arrête le pouce.</p>
+                  </div>
+                  <aside class="cadre-meta" aria-hidden="true">
+                    <p class="meta-ligne">PLAN 03 / 03</p>
+                    <p class="meta-ligne">TC 03:48:02:19</p>
+                    <p class="meta-ligne">SOCIAL — FOOH</p>
+                    <p class="meta-ligne">ÉCHELLE VILLE, PHOTORÉEL</p>
+                  </aside>
+                </article>
+
+                <aside class="cadre cadre--fin" aria-label="Votre projet">
+                  <p class="cadre-fin-txt">Votre film<br /><em>ici.</em></p>
+                  <a class="btn btn--ligne" href="mailto:hello@texture.studio">Écrivez-nous</a>
+                </aside>
+
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ SCÈNE 03 — LA MÉTHODE ============ -->
+          <!-- ⚠ COMPORTEMENT PRÉSERVÉ À L'IDENTIQUE (voir DESIGN.md) :
+               défilement horizontal épinglé, bobine qui tourne, pellicule qui
+               se déroule, illustrations dessinées au trait. Piloté par
+               src/sections/methode.js + src/scenes/cadres.js. -->
+          <section class="methode" id="methode" data-scene="SCÈNE 03 — LA MÉTHODE" aria-labelledby="methode-titre">
+            <div class="methode-tete">
+              <h2 class="methode-titre" id="methode-titre">Quatre semaines,<br /><em>trois validations.</em></h2>
+              <p class="methode-note">Retours illimités avant production.<br />Un film se décide avant d'être fabriqué.</p>
+            </div>
+            <div class="methode-corps">
+              <div class="methode-rail" aria-hidden="true">
+                <svg class="methode-bobine" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="32" cy="32" r="30" stroke="currentColor" stroke-width="2" />
+                  <circle cx="32" cy="32" r="6" stroke="currentColor" stroke-width="2" />
+                  <circle cx="32" cy="13" r="6.5" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="48.5" cy="22.5" r="6.5" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="48.5" cy="41.5" r="6.5" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="32" cy="51" r="6.5" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="15.5" cy="41.5" r="6.5" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="15.5" cy="22.5" r="6.5" stroke="currentColor" stroke-width="1.5" />
+                </svg>
+                <div class="methode-pellicule">
+                  <div class="methode-pellicule-fill"></div>
+                </div>
+              </div>
+              <div class="methode-defile">
+                <ol class="methode-liste">
+              <li class="etape">
+                <p class="etape-num">S.01</p>
+                <svg class="etape-visuel" viewBox="0 0 220 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <!-- viseur : cadre + collimateurs + croix -->
+                  <rect x="8" y="8" width="120" height="80" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M8 24v-16h16 M112 8h16v16 M128 72v16h-16 M24 88H8V72" stroke="currentColor" stroke-width="2.5" />
+                  <path d="M68 38v20 M58 48h20" stroke="currentColor" stroke-width="1.5" />
+                  <circle cx="68" cy="48" r="14" stroke="currentColor" stroke-width="1" stroke-dasharray="3 4" />
+                  <!-- moodboard : trois vignettes épinglées -->
+                  <rect x="146" y="10" width="34" height="24" stroke="currentColor" stroke-width="1.5" transform="rotate(-4 163 22)" />
+                  <rect x="176" y="34" width="34" height="24" stroke="currentColor" stroke-width="1.5" transform="rotate(3 193 46)" />
+                  <rect x="146" y="58" width="34" height="24" stroke="currentColor" stroke-width="1.5" transform="rotate(-2 163 70)" />
+                  <path d="M150 28l8-9 6 6 5-4 7 7" stroke="currentColor" stroke-width="1" />
+                  <circle cx="186" cy="41" r="3" stroke="currentColor" stroke-width="1" />
+                  <path d="M150 76l9-8 7 6" stroke="currentColor" stroke-width="1" />
+                </svg>
+                <h3 class="etape-nom">Le brief</h3>
+                <p class="etape-desc">Intention, moodboard, références. On cadre le film avant d'écrire un mot.</p>
+              </li>
+              <li class="etape">
+                <p class="etape-num">S.02</p>
+                <svg class="etape-visuel" viewBox="0 0 220 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <!-- page de script : feuillet corné, lignes de dialogue centrées -->
+                  <path d="M14 8h96v80H14z" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M110 8l-14 14V8z" fill="currentColor" opacity="0.5" />
+                  <path d="M40 22h44 M50 30h24" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M26 42h72 M26 49h72 M26 56h52" stroke="currentColor" stroke-width="1" opacity="0.7" />
+                  <path d="M44 68h36 M38 75h48" stroke="currentColor" stroke-width="1" opacity="0.7" />
+                  <!-- voix : forme d'onde -->
+                  <path d="M128 48h6 M140 40v16 M148 30v36 M156 42v12 M164 22v52 M172 36v24 M180 44v8 M188 28v40 M196 40v16 M204 46h6"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                <h3 class="etape-nom">Le script</h3>
+                <p class="etape-desc">Écriture, dialogue, voix. Itérations jusqu'à validation — sans limite.</p>
+                <p class="etape-jalon">VALIDATION 1</p>
+              </li>
+              <li class="etape">
+                <p class="etape-num">S.03</p>
+                <svg class="etape-visuel" viewBox="0 0 220 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <!-- trois cases de découpage, reliées plan à plan -->
+                  <rect x="8" y="20" width="58" height="42" stroke="currentColor" stroke-width="1.5" />
+                  <rect x="81" y="20" width="58" height="42" stroke="currentColor" stroke-width="1.5" />
+                  <rect x="154" y="20" width="58" height="42" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M66 41h15 M139 41h15" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3" />
+                  <!-- case 1 : plan large, horizon -->
+                  <path d="M8 50h58 M20 50l8-14 7 9 5-6 10 11" stroke="currentColor" stroke-width="1" />
+                  <!-- case 2 : plan rapproché, personnage + flèche de pano -->
+                  <circle cx="103" cy="36" r="6" stroke="currentColor" stroke-width="1" />
+                  <path d="M96 62c0-8 3-13 7-13s7 5 7 13" stroke="currentColor" stroke-width="1" />
+                  <path d="M118 32h14m0 0-4-4m4 4-4 4" stroke="currentColor" stroke-width="1" />
+                  <!-- case 3 : insert, zoom avant -->
+                  <rect x="168" y="30" width="30" height="22" stroke="currentColor" stroke-width="1" stroke-dasharray="3 3" />
+                  <path d="M163 27l5 5 M217 27l-5 5 M163 55l5-5 M217 55l-5-5" stroke="currentColor" stroke-width="1" />
+                  <!-- légendes -->
+                  <path d="M18 72h38 M91 72h38 M164 72h38" stroke="currentColor" stroke-width="1" opacity="0.6" />
+                  <path d="M24 79h26 M97 79h26 M170 79h26" stroke="currentColor" stroke-width="1" opacity="0.35" />
+                </svg>
+                <h3 class="etape-nom">Le storyboard</h3>
+                <p class="etape-desc">Découpage plan par plan, animatique. Vous voyez le film avant le film.</p>
+                <p class="etape-jalon">VALIDATION 2</p>
+              </li>
+              <li class="etape">
+                <p class="etape-num">S.04</p>
+                <svg class="etape-visuel" viewBox="0 0 220 96" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                  <!-- clap : bras hachuré ouvert sur l'ardoise -->
+                  <g class="etape-clap-bras">
+                    <path d="M10 26 78 14l3 14-68 12z" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M22 24l8 12 M38 21l8 12 M54 18l8 12 M70 15l8 12" stroke="currentColor" stroke-width="1.5" />
+                  </g>
+                  <rect x="12" y="40" width="70" height="46" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M12 54h70" stroke="currentColor" stroke-width="1" />
+                  <path d="M20 64h32 M20 72h22 M20 80h28" stroke="currentColor" stroke-width="1" opacity="0.6" />
+                  <!-- étalonnage : trois roues chromatiques lift / gamma / gain -->
+                  <circle cx="116" cy="63" r="16" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M116 47v4 M116 75v4 M100 63h4 M128 63h4" stroke="currentColor" stroke-width="1" />
+                  <circle cx="111" cy="59" r="2.5" fill="currentColor" />
+                  <circle cx="156" cy="63" r="16" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M156 47v4 M156 75v4 M140 63h4 M168 63h4" stroke="currentColor" stroke-width="1" />
+                  <circle cx="160" cy="68" r="2.5" fill="currentColor" />
+                  <circle cx="196" cy="63" r="16" stroke="currentColor" stroke-width="1.5" />
+                  <path d="M196 47v4 M196 75v4 M180 63h4 M208 63h4" stroke="currentColor" stroke-width="1" />
+                  <circle cx="200" cy="58" r="2.5" fill="currentColor" />
+                  <!-- courbe de niveau au-dessus des roues -->
+                  <path d="M102 32c14-14 26 6 40-6s26 2 40-8 18 0 28-4" stroke="currentColor" stroke-width="1" opacity="0.7" />
+                  <path d="M104 24h12 M104 28h6" stroke="currentColor" stroke-width="1" opacity="0.4" />
+                </svg>
+                <h3 class="etape-nom">La production</h3>
+                <p class="etape-desc">Génération dirigée, musique originale composée, sound design, étalonnage cinéma.</p>
+                <p class="etape-jalon">LIVRAISON</p>
+              </li>
+                </ol>
+              </div>
+            </div>
+          </section>
+
+          <!-- ============ SCÈNE 04 — L'ŒIL ============ -->
+          <section class="oeil" id="oeil" data-scene="SCÈNE 04 — L'ŒIL" aria-labelledby="oeil-titre">
+            <h2 class="oeil-titre reveal" id="oeil-titre" data-reveal><em>L'œil</em> derrière les images</h2>
+            <div class="oeil-grille">
+              <article class="profil reveal" data-reveal>
+                <div class="profil-photo" role="img" aria-label="Portrait de Daniel Fortunato — emplacement photo">
+                  <p class="profil-tc" aria-hidden="true">RÉAL.</p>
+                </div>
+                <h3 class="profil-nom">Daniel Fortunato</h3>
+                <p class="profil-role">Réalisation &amp; direction de création</p>
+                <p class="profil-bio">Monteur et réalisateur passé par le long-métrage français. Quinze ans de plateaux, de bancs de montage et d'étalonnage — aujourd'hui appliqués à l'image générée.</p>
+                <ul class="profil-credits">
+                  <li><span>J'accuse</span> — R. Polanski, 2019</li>
+                  <li><span>Taxi 5</span> — 2018</li>
+                  <li><span>Abysses</span> — réalisation, 2015</li>
+                </ul>
+              </article>
+              <article class="profil reveal" data-reveal>
+                <div class="profil-photo" role="img" aria-label="Portrait de Léo Turbet-Delof — emplacement photo">
+                  <p class="profil-tc" aria-hidden="true">PROD.</p>
+                </div>
+                <h3 class="profil-nom">Léo Turbet-Delof</h3>
+                <p class="profil-role">Production &amp; développement</p>
+                <p class="profil-bio">Il construit le studio : process, pipeline IA, relation client. Votre interlocuteur du brief à la livraison.</p>
+                <ul class="profil-credits">
+                  <li><span>Texture</span> — co-fondateur</li>
+                </ul>
+              </article>
+            </div>
+          </section>
+
+          <!-- ============ SCÈNE 05 — TARIFS ============ -->
+          <section class="tarifs" id="tarifs" data-scene="SCÈNE 05 — TARIFS" aria-labelledby="tarifs-titre">
+            <h2 class="tarifs-titre reveal" id="tarifs-titre" data-reveal>Trois formats,<br /><em>un regard.</em></h2>
+            <div class="tarifs-grille">
+              <article class="offre reveal" data-reveal>
+                <p class="offre-tag">FOOH · Teaser</p>
+                <h3 class="offre-nom">Capsule</h3>
+                <p class="offre-prix"><span class="offre-des">à partir de</span>4&nbsp;900&nbsp;€ <span class="offre-ht">HT</span></p>
+                <ul class="offre-liste">
+                  <li>10–20 s photoréalistes</li>
+                  <li>3 formats (9:16, 1:1, 16:9)</li>
+                  <li>Musique licenciée + sound design</li>
+                  <li>Droits social 12 mois</li>
+                </ul>
+                <p class="offre-delai">Livré en 2 semaines</p>
+                <a class="btn" href="mailto:hello@texture.studio?subject=Capsule">Demander un devis</a>
+              </article>
+
+              <article class="offre offre--phare reveal" data-reveal>
+                <p class="offre-tag">Le produit cœur</p>
+                <h3 class="offre-nom">Film Signature</h3>
+                <p class="offre-prix"><span class="offre-des">à partir de</span>9&nbsp;800&nbsp;€ <span class="offre-ht">HT</span></p>
+                <ul class="offre-liste">
+                  <li>Film de marque 30–60 s</li>
+                  <li>Direction artistique complète</li>
+                  <li><strong>Musique originale composée</strong></li>
+                  <li>3 jalons de validation</li>
+                  <li>Étalonnage cinéma</li>
+                  <li>3 formats + cutdown 15 s</li>
+                </ul>
+                <p class="offre-delai">Livré en 3–4 semaines</p>
+                <a class="btn" href="mailto:hello@texture.studio?subject=Film%20Signature">Prendre rendez-vous</a>
+              </article>
+
+              <article class="offre reveal" data-reveal>
+                <p class="offre-tag">Dispositif complet</p>
+                <h3 class="offre-nom">Campagne</h3>
+                <p class="offre-prix"><span class="offre-des">à partir de</span>19&nbsp;800&nbsp;€ <span class="offre-ht">HT</span></p>
+                <ul class="offre-liste">
+                  <li>Film hero 30–60 s</li>
+                  <li>Billboards sponsoring TV</li>
+                  <li>3 capsules social</li>
+                  <li>Droits TV France inclus</li>
+                </ul>
+                <p class="offre-delai">Livré en 4–6 semaines</p>
+                <a class="btn" href="mailto:hello@texture.studio?subject=Campagne">Demander un devis</a>
+              </article>
+            </div>
+            <aside class="tarifs-abo reveal" data-reveal>
+              <div>
+                <p class="tarifs-abo-nom">Studio étendu — <strong>6&nbsp;500&nbsp;€/mois</strong></p>
+                <p class="tarifs-abo-desc">Votre cellule création permanente : 2 capsules par mois ou 1 film tous les 2 mois, priorité planning, veille créative. Engagement 3 mois.</p>
+              </div>
+              <a class="lien-souligne" href="mailto:hello@texture.studio?subject=Studio%20étendu">En parler →</a>
+            </aside>
+          </section>
+
+          <!-- ============ GÉNÉRIQUE — CONTACT ============ -->
+          <footer class="generique" id="generique" data-scene="GÉNÉRIQUE DE FIN" aria-labelledby="generique-titre">
+            <div class="generique-roll reveal" data-reveal>
+              <p class="generique-pre">UNE MARQUE PEUT ÊTRE UN FILM.</p>
+              <h2 class="generique-titre" id="generique-titre">Tournons<br /><em>le vôtre.</em></h2>
+              <a class="btn btn--grand" href="mailto:hello@texture.studio">hello@texture.studio</a>
+              <div class="generique-credits">
+                <p>RÉALISATION — DANIEL FORTUNATO</p>
+                <p>PRODUCTION — LÉO TURBET-DELOF</p>
+                <p>PARIS · MMXXVI</p>
+                <p class="generique-copy">© TEXTURE 2026 — TOUS DROITS RÉSERVÉS</p>
+              </div>
+            </div>
+          </footer>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Grain pellicule global -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

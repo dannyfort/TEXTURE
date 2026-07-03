@@ -1,0 +1,47 @@
+/* ============ VOYAGE — OCÉAN VERS GALAXIE ============ */
+/* Coquille DOM du voyage : le canvas #stage (scène galaxie.js) vit derrière.
+   Les sections ne posent que du texte translucide par-dessus la 3D. */
+
+/* Flash de coupe : traversée de la surface (plongée) et sortie de l'eau */
+.flash {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-flash);
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(223, 246, 248, 0.95),
+    rgba(95, 224, 218, 0.55) 55%,
+    rgba(6, 8, 9, 0) 80%
+  );
+}
+
+/* Transitions verticales : de l'espace de scroll pur pour laisser la caméra
+   plonger puis remonter — aucun contenu, la 3D fait tout le travail. */
+.transition {
+  position: relative;
+}
+
+.transition--plongee { height: 130vh; }
+/* sortie raccourcie (85vh au lieu de 140) : la remontée enchaîne vite */
+.transition--sortie { height: 85vh; }
+
+/* Le bloc galaxie : contient bobine, méthode, œil, tarifs, générique.
+   Fond transparent — le champ d'étoiles de galaxie.js s'y voit. */
+.galaxie {
+  position: relative;
+}
+
+/* Révélation « travelling avant » : les blocs arrivent de la profondeur,
+   floutés puis nets. Piloté par galaxie.js (ScrollTrigger). */
+.reveal {
+  will-change: transform, opacity, filter;
+}
+
+/* Repli mouvement réduit : tout est net et visible d'emblée. */
+@media (prefers-reduced-motion: reduce) {
+  .flash { display: none; }
+  .transition--plongee { height: 40vh; }
+  .transition--sortie { height: 40vh; }
+}

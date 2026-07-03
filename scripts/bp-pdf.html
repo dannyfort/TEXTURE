@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<title>Business Plan — Texture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Instrument+Serif:ital@0;1&family=Space+Mono&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --noir-salle: oklch(13% 0.008 70);
+    --noir-fosse: oklch(9% 0.006 70);
+    --ivoire: oklch(93% 0.015 85);
+    --ivoire-doux: oklch(78% 0.018 80);
+    --tungstene: oklch(82% 0.085 80);
+    --tungstene-fonce: oklch(62% 0.09 70);
+    --rec: oklch(58% 0.21 27);
+    --trait: oklch(30% 0.012 75);
+    --trait-fort: oklch(42% 0.02 78);
+    --font-display: "Instrument Serif", "Times New Roman", serif;
+    --font-ui: "Archivo", "Helvetica Neue", sans-serif;
+    --font-tc: "Space Mono", "SF Mono", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: letter; margin: 0; }
+  html, body { background: var(--noir-salle); }
+  body { font-family: var(--font-ui); color: var(--ivoire); font-size: 10.5pt; line-height: 1.55; font-weight: 300; }
+
+  .page { width: 8.5in; height: 11in; padding: 0.85in 0.9in; position: relative; overflow: hidden; page-break-after: always; background: var(--noir-salle); display: flex; flex-direction: column; }
+  .page:last-child { page-break-after: avoid; }
+
+  /* HUD : timecode header / footer */
+  .hud-top, .hud-bot { position: absolute; left: 0.9in; right: 0.9in; display: flex; justify-content: space-between; font-family: var(--font-tc); font-size: 6.5pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ivoire-doux); }
+  .hud-top { top: 0.42in; border-bottom: 0.5pt solid var(--trait); padding-bottom: 6pt; }
+  .hud-bot { bottom: 0.42in; border-top: 0.5pt solid var(--trait); padding-top: 6pt; }
+  .hud-top .rec { color: var(--rec); }
+  .rec-dot { display: inline-block; width: 5pt; height: 5pt; border-radius: 50%; background: var(--rec); margin-right: 4pt; vertical-align: 1pt; }
+
+  /* Étiquette de section */
+  .etiquette { font-family: var(--font-tc); font-size: 7pt; letter-spacing: 0.3em; text-transform: uppercase; color: var(--tungstene); margin-bottom: 10pt; }
+  .etiquette::before { content: "— "; color: var(--trait-fort); }
+
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 400; line-height: 1.05; text-wrap: balance; }
+  h2 { font-size: 26pt; letter-spacing: -0.015em; margin-bottom: 14pt; }
+  h2 em, h1 em { font-style: italic; color: var(--tungstene); }
+  h3 { font-size: 14pt; color: var(--tungstene); margin: 16pt 0 8pt; }
+  p { max-width: 62ch; margin-bottom: 8pt; color: var(--ivoire-doux); }
+  p strong, li strong { color: var(--ivoire); font-weight: 500; }
+  ul, ol { margin: 0 0 8pt 14pt; color: var(--ivoire-doux); }
+  li { margin-bottom: 3pt; }
+
+  /* Tables — style générique fin */
+  table { width: 100%; border-collapse: collapse; margin: 10pt 0 14pt; font-size: 8.5pt; }
+  th { font-family: var(--font-tc); font-size: 6.5pt; letter-spacing: 0.18em; text-transform: uppercase; color: var(--tungstene); text-align: left; padding: 5pt 8pt; border-bottom: 0.75pt solid var(--trait-fort); font-weight: 400; }
+  td { padding: 5pt 8pt; border-bottom: 0.5pt solid var(--trait); color: var(--ivoire-doux); vertical-align: top; }
+  td strong { color: var(--ivoire); font-weight: 500; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .accent { color: var(--tungstene); }
+  .rec-txt { color: var(--rec); }
+
+  .filet { border: none; border-top: 0.5pt solid var(--trait); margin: 14pt 0; }
+
+  /* Encadré citation / phrase clé */
+  .carton { border-left: 2pt solid var(--tungstene); padding: 10pt 14pt; margin: 12pt 0; background: var(--noir-fosse); }
+  .carton p { margin: 0; font-family: var(--font-display); font-size: 12.5pt; line-height: 1.35; color: var(--ivoire); }
+
+  /* ============ COUVERTURE ============ */
+  .cover { justify-content: space-between; background: var(--noir-fosse); }
+  .cover .letterbox-top, .cover .letterbox-bot { position: absolute; left: 0; right: 0; height: 0.55in; background: oklch(6% 0.004 70); }
+  .cover .letterbox-top { top: 0; } .cover .letterbox-bot { bottom: 0; }
+  .cover-tc { font-family: var(--font-tc); font-size: 7.5pt; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ivoire-doux); margin-top: 0.6in; }
+  .cover-title { font-family: var(--font-display); font-size: 56pt; line-height: 0.98; letter-spacing: -0.015em; margin-top: 0.5in; }
+  .cover-title em { font-style: italic; color: var(--tungstene); }
+  .cover-sub { font-family: var(--font-tc); font-size: 8pt; letter-spacing: 0.25em; text-transform: uppercase; color: var(--tungstene); margin-top: 18pt; }
+  .cover-meta { margin-bottom: 0.75in; font-size: 9.5pt; color: var(--ivoire-doux); border-top: 0.5pt solid var(--trait-fort); padding-top: 12pt; display: flex; justify-content: space-between; align-items: baseline; }
+  .cover-meta .names { color: var(--ivoire); font-weight: 400; font-size: 11pt; }
+
+  .deux-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18pt; }
+  .compact table { margin: 6pt 0 8pt; }
+  .compact td, .compact th { padding: 3pt 8pt; }
+  .compact h2 { font-size: 22pt; margin-bottom: 8pt; }
+  .footnote { font-size: 7.5pt; color: var(--ivoire-doux); opacity: 0.75; }
+</style>
+</head>
+<body>
+
+<!-- ============ COUVERTURE ============ -->
+<section class="page cover">
+  <div class="letterbox-top"></div><div class="letterbox-bot"></div>
+  <div>
+    <div class="cover-tc"><span class="rec-dot"></span>REC · CONFIDENTIEL · BOBINE 01</div>
+    <div class="cover-title">Business<br/>plan<br/><em>Texture</em></div>
+    <div class="cover-sub">Prévisionnel 36 mois — studio de création publicitaire IA</div>
+  </div>
+  <div class="cover-meta">
+    <span class="names">Léo Turbet-Delof × Daniel Fortunato</span>
+    <span style="font-family: var(--font-tc); font-size:7.5pt; letter-spacing:0.2em;">11 JUIN 2026 · V1</span>
+  </div>
+</section>
+
+<!-- ============ P2 : RÉSUMÉ EXÉCUTIF ============ -->
+<section class="page">
+  <div class="hud-top"><span><span class="rec">●</span> TEXTURE — BUSINESS PLAN</span><span>TC 01:00</span></div>
+  <div style="margin-top: 0.45in;">
+    <div class="etiquette">Scène 01 — Résumé exécutif</div>
+    <h2>Le rendu d'un tournage à 40 000 €, <em>en trois semaines.</em></h2>
+    <p><strong>Texture</strong> est un studio de publicité IA cinématique premium (4,9–20 K€ par projet), différencié par la direction d'un réalisateur cinéma — Daniel Fortunato (<em>J'accuse</em>, <em>Taxi 5</em>) — et des preuves réellement diffusées : Candia × TF1, XPeng × Samsung. Coûts fixes quasi nuls, marge brute 65–78 %, BFR négatif, acquisition organique.</p>
+    <div class="carton"><p>Le pari structurel : un studio « noyau + réseau ». Les fondateurs gardent le regard et la vente ; un banc de freelances ciné exécute sous brief. Le plafond passe de ~30 K€ à 80–100 K€ par mois, sans embauche.</p></div>
+    <table>
+      <tr><th></th><th class="num">Année 1</th><th class="num">Année 2</th><th class="num">Année 3</th></tr>
+      <tr><td>Chiffre d'affaires</td><td class="num"><strong>280 K€</strong></td><td class="num"><strong>620 K€</strong></td><td class="num"><strong>1 000 K€</strong></td></tr>
+      <tr><td>Marge brute</td><td class="num">76 %</td><td class="num">70 %</td><td class="num">67 %</td></tr>
+      <tr><td>Résultat avant rémunérations fondateurs</td><td class="num">~195 K€</td><td class="num">~360 K€</td><td class="num">~520 K€</td></tr>
+      <tr><td>Équipe interne</td><td class="num">2</td><td class="num">3</td><td class="num">4</td></tr>
+      <tr><td>Besoin de financement</td><td class="num accent"><strong>0 €</strong></td><td class="num accent">0 €</td><td class="num accent">0 €</td></tr>
+    </table>
+    <div class="etiquette" style="margin-top: 14pt;">La grille</div>
+    <table>
+      <tr><th>Produit</th><th>Contenu</th><th class="num">Prix (à partir de)</th><th class="num">Délai</th></tr>
+      <tr><td><strong>Capsule</strong></td><td>FOOH / teaser 10–20 s, 3 formats</td><td class="num">4 900 €</td><td class="num">2 sem.</td></tr>
+      <tr><td><strong>Film Signature</strong></td><td>30–60 s, musique originale, 3 jalons</td><td class="num">9 800 €</td><td class="num">3–4 sem.</td></tr>
+      <tr><td><strong>Campagne</strong></td><td>Film hero + billboards TV + capsules</td><td class="num">19 800 €</td><td class="num">4–6 sem.</td></tr>
+      <tr><td><strong>Studio Étendu</strong></td><td>Abonnement direction créative</td><td class="num">6 500 €/mois</td><td class="num">3 mois min.</td></tr>
+    </table>
+  </div>
+  <div class="hud-bot"><span>SCÈNE 01 / 07</span><span>P. 02</span></div>
+</section>
+
+<!-- ============ P3 : ORGANISATION ============ -->
+<section class="page">
+  <div class="hud-top"><span><span class="rec">●</span> TEXTURE — BUSINESS PLAN</span><span>TC 02:00</span></div>
+  <div style="margin-top: 0.45in;">
+    <div class="etiquette">Scène 02 — L'organisation</div>
+    <h2>Qui fait <em>quoi.</em></h2>
+    <table>
+      <tr><th>Étape du funnel</th><th>Propriétaire</th><th>Outil / process</th></tr>
+      <tr><td>Génération de leads (LinkedIn, Waalaxy, site)</td><td><strong>Léo</strong></td><td>Calendrier 8 sem., séquences, HubSpot</td></tr>
+      <tr><td>Premier filtre + prise de RDV</td><td><strong>Léo</strong></td><td>Formulaire qualifiant</td></tr>
+      <tr><td>Call de qualification</td><td class="accent"><strong>Partagé</strong></td><td>Script, grille budget ≥ 4,9 K€</td></tr>
+      <tr><td>Devis sous 48 h</td><td><strong>Léo</strong></td><td>Templates par produit</td></tr>
+      <tr><td>Relances (J+2, J+7, J+14)</td><td><strong>Léo</strong></td><td>Séquences HubSpot automatisées</td></tr>
+      <tr><td>Closing (négociation périmètre, jamais prix)</td><td class="accent"><strong>Partagé</strong></td><td>5 règles pricing ; Campagne d'abord</td></tr>
+      <tr><td>Contrat + encaissement acompte</td><td><strong>Léo</strong></td><td>Signature électronique</td></tr>
+      <tr><td>Upsell (abonnement à J+60, options)</td><td class="accent"><strong>Partagé</strong></td><td>Proposition systématique post-livraison</td></tr>
+    </table>
+    <p>La vente à forte valeur (qualification, closing, upsell) est <strong>partagée</strong> : Daniel apporte la crédibilité créative, Léo la rigueur commerciale. Règle de binôme : <strong>un seul owner par deal</strong>, décidé à la qualification — jamais de deal sans propriétaire. Léo porte seul le volume répétitif et automatisable. KPI de protection : ≥ 60 % des calls de qualification aboutissent à un devis.</p>
+    <div class="etiquette" style="margin-top:12pt;">Charge de travail — régime de croisière</div>
+    <table>
+      <tr><th></th><th class="num">Daniel</th><th class="num">Léo</th></tr>
+      <tr><td>Production / direction créa</td><td class="num">~12 j/mois</td><td class="num">2–3 j/mois</td></tr>
+      <tr><td>Sales (qualif, closing, upsell — partagé)</td><td class="num">~2 j/mois</td><td class="num">~2 j/mois</td></tr>
+      <tr><td>Leads, devis, relances, CRM</td><td class="num">—</td><td class="num">~5 j/mois</td></tr>
+      <tr><td>Marketing (contenu, site, automation)</td><td class="num">1 j/mois</td><td class="num">~6 j/mois</td></tr>
+      <tr><td>Coordination freelances</td><td class="num">1 j/mois</td><td class="num">2 j/mois</td></tr>
+      <tr><td><strong>Total</strong></td><td class="num accent"><strong>~16 j/mois</strong></td><td class="num accent"><strong>~18 j/mois</strong></td></tr>
+    </table>
+  </div>
+  <div class="hud-bot"><span>SCÈNE 02 / 07</span><span>P. 03</span></div>
+</section>
+
+<!-- ============ P4 : SOUS-TRAITANCE ============ -->
+<section class="page">
+  <div class="hud-top"><span><span class="rec">●</span> TEXTURE — BUSINESS PLAN</span><span>TC 03:00</span></div>
+  <div style="margin-top: 0.45in;">
+    <div class="etiquette">Scène 03 — La production</div>
+    <h2>Daniel dirige, <em>le réseau exécute.</em></h2>
+    <div class="deux-col">
+      <div>
+        <div class="etiquette">Reste en interne — le moat</div>
+        <ul>
+          <li>Direction créative, découpage, intention</li>
+          <li>Validation des 3 jalons</li>
+          <li>Étalonnage final / signature visuelle</li>
+          <li>Musique originale + sound design</li>
+          <li>Relation client créative</li>
+        </ul>
+      </div>
+      <div>
+        <div class="etiquette">Sous-traité — l'exécution</div>
+        <ul>
+          <li>Montage des déclinaisons et formats</li>
+          <li>Génération IA supervisée (briefs de plans)</li>
+          <li>Motion design, habillages, sous-titres</li>
+          <li>Roto / cleanup, conformations</li>
+          <li>Concept art d'exécution</li>
+        </ul>
+      </div>
+    </div>
+    <table>
+      <tr><th>Profil au banc</th><th class="num">TJM</th><th>Usage</th></tr>
+      <tr><td>Monteur profil ciné</td><td class="num">350–450 €</td><td>Dès le 2ᵉ projet simultané</td></tr>
+      <tr><td>Motion designer</td><td class="num">350–500 €</td><td>Déclinaisons, habillages</td></tr>
+      <tr><td>Artiste IA exécutant</td><td class="num">300–450 €</td><td>Volume de génération sous brief</td></tr>
+      <tr><td>Étalonneur (second rang)</td><td class="num">400–500 €</td><td>Quand Daniel sature</td></tr>
+    </table>
+    <p><strong>L'arbitrage :</strong> on cède 12–15 points de marge par projet sous-traité, la capacité de Daniel double. La marge cédée est récupérée en volume. Règle : on sous-traite dès qu'un 2ᵉ projet se chevauche — jamais sur un projet isolé.</p>
+    <div class="etiquette" style="margin-top:10pt;">Les 5 règles du banc</div>
+    <ol>
+      <li>Tout freelance est testé sur un micro-périmètre payé (500–800 €) avant le premier vrai projet.</li>
+      <li>Briefs de plans systématiques — références fournies, jamais de page blanche.</li>
+      <li>NDA + cession de droits signés avant le premier fichier échangé.</li>
+      <li>Daniel valide chaque livrable avant le master — la signature ne se délègue pas.</li>
+      <li>2 freelances minimum par poste clé — jamais de dépendance à un seul.</li>
+    </ol>
+  </div>
+  <div class="hud-bot"><span>SCÈNE 03 / 07</span><span>P. 04</span></div>
+</section>
+
+<!-- ============ P5 : SYSTÈME IA ============ -->
+<section class="page">
+  <div class="hud-top"><span><span class="rec">●</span> TEXTURE — BUSINESS PLAN</span><span>TC 04:00</span></div>
+  <div class="compact" style="margin-top: 0.4in;">
+    <div class="etiquette">Scène 04 — Le système IA</div>
+    <h2>Une agence pilotée par <em>les process.</em></h2>
+    <p>Principe : <strong>l'IA n'automatise pas le regard, elle élimine tout ce qui n'est pas le regard.</strong> Chaque heure récupérée sur l'exécution est une heure de direction créative ou de pipeline commercial.</p>
+    <div class="etiquette">Pipeline commercial automatisé (HubSpot + n8n + Claude)</div>
+    <table style="font-size:8pt;">
+      <tr><th>Étape</th><th>Ce que fait la machine</th></tr>
+      <tr><td>Capture & scoring</td><td>Tout lead enrichi et scoré 1–5 ; &lt; 3 → nurturing auto, jamais un call</td></tr>
+      <tr><td>Pré-qualification</td><td>Fiche d'1 page générée avant chaque call — 80 % du travail fait</td></tr>
+      <tr><td>Devis</td><td>Templates + rédaction IA validée : envoyé le jour même du call</td></tr>
+      <tr><td>Relances J+2 / J+7 / J+14</td><td>Personnalisées depuis les notes du call — jamais génériques</td></tr>
+      <tr><td>Onboarding client</td><td>Zéro action manuelle entre « signé » et « production lancée »</td></tr>
+      <tr><td>Upsell J+60 · droits J+330</td><td>Abonnement proposé systématiquement ; renouvellement des droits relancé</td></tr>
+    </table>
+    <div class="etiquette">Le kit plateau — les sous-traitants reçoivent un découpage, pas une intention</div>
+    <p>Chaque film produit un <strong>brief de plans</strong> : frame de référence, intention écrite par Daniel, specs, critères d'acceptation binaires. Une bibliothèque de production (prompts maîtres, LUTs Texture, anti-patterns) s'enrichit à chaque projet — <strong>le regard de Daniel, encodé en assets transmissibles</strong>.</p>
+    <div class="etiquette">La qualité par 3 gates — dont 2 sans Daniel</div>
+    <table style="font-size:8pt;">
+      <tr><th>Gate</th><th>Qui</th><th>Quoi</th></tr>
+      <tr><td>1 — Auto-contrôle</td><td>Le freelance</td><td>Checklist + passe technique automatisée : un livrable non conforme ne peut pas être soumis</td></tr>
+      <tr><td>2 — Conformité</td><td>Léo + IA</td><td>Critères binaires du brief, détection des défauts génératifs — sous 24 h</td></tr>
+      <tr><td>3 — Signature</td><td class="accent"><strong>Daniel</strong></td><td>Le seul jugement créatif, sur des plans déjà conformes — 1 session par jalon</td></tr>
+    </table>
+    <div class="carton"><p>Coût de la stack hors génératif : ~120–220 €/mois. Gain : 8–10 jours-homme par mois. Le meilleur ROI de l'agence.</p></div>
+  </div>
+  <div class="hud-bot"><span>SCÈNE 04 / 08</span><span>P. 05</span></div>
+</section>
+
+<!-- ============ P6 : PRÉVISIONNEL A1 ============ -->
+<section class="page">
+  <div class="hud-top"><span><span class="rec">●</span> TEXTURE — BUSINESS PLAN</span><span>TC 04:00</span></div>
+  <div class="compact" style="margin-top: 0.4in;">
+    <div class="etiquette">Scène 04 — Prévisionnel année 1</div>
+    <h2>Mois par <em>mois.</em></h2>
+    <table style="font-size:8pt;">
+      <tr><th>Mois</th><th class="num">Capsules</th><th class="num">Films</th><th class="num">Campagnes</th><th class="num">Abonnés</th><th class="num">CA (K€)</th><th class="num">Marge brute (K€)</th></tr>
+      <tr><td>M1</td><td class="num">1 <span class="footnote">(fond.)</span></td><td class="num">1 <span class="footnote">(fond.)</span></td><td class="num">—</td><td class="num">—</td><td class="num">11,8</td><td class="num">11,3</td></tr>
+      <tr><td>M2</td><td class="num">1 <span class="footnote">(fond.)</span></td><td class="num">1</td><td class="num">—</td><td class="num">—</td><td class="num">14,1</td><td class="num">12,9</td></tr>
+      <tr><td>M3</td><td class="num">1</td><td class="num">1</td><td class="num">—</td><td class="num">—</td><td class="num">16,9</td><td class="num">14,9</td></tr>
+      <tr><td>M4</td><td class="num">2</td><td class="num">1</td><td class="num">—</td><td class="num">1</td><td class="num">27,7</td><td class="num">24,6</td></tr>
+      <tr><td>M5</td><td class="num">1</td><td class="num">2</td><td class="num">—</td><td class="num">1</td><td class="num">31,1</td><td class="num">26,9</td></tr>
+      <tr><td>M6</td><td class="num">2</td><td class="num">2</td><td class="num">—</td><td class="num">1</td><td class="num">36,8</td><td class="num">31,0</td></tr>
+      <tr><td>M7</td><td class="num">1</td><td class="num">2</td><td class="num">1</td><td class="num">2</td><td class="num">56,1</td><td class="num">46,6</td></tr>
+      <tr><td>M8</td><td class="num">2</td><td class="num">2</td><td class="num">—</td><td class="num">2</td><td class="num">43,3</td><td class="num">36,5</td></tr>
+      <tr><td>M9</td><td class="num">1</td><td class="num">2</td><td class="num">—</td><td class="num">3</td><td class="num">44,9</td><td class="num">38,0</td></tr>
+      <tr><td>M10</td><td class="num">2</td><td class="num">3</td><td class="num">—</td><td class="num">3</td><td class="num">55,9</td><td class="num">45,3</td></tr>
+      <tr><td>M11</td><td class="num">1</td><td class="num">2</td><td class="num">1</td><td class="num">3</td><td class="num">63,4</td><td class="num">51,2</td></tr>
+      <tr><td>M12</td><td class="num">2</td><td class="num">2</td><td class="num">—</td><td class="num">3</td><td class="num">49,8</td><td class="num">41,9</td></tr>
+    </table>
+    <p class="footnote">Somme mécanique ≈ 452 K€. Le plan retient <strong style="color:var(--ivoire)">280 K€ (–38 %)</strong> en scénario central : saisonnalité, montée du canal LinkedIn, mois de closing ratés.</p>
+    <table>
+      <tr><th>Scénario</th><th class="num">CA A1</th><th>Correspond à</th></tr>
+      <tr><td>Prudent</td><td class="num">190 K€</td><td>Pipeline qui démarre à M4, pas de Campagne</td></tr>
+      <tr><td class="accent"><strong>Central (retenu)</strong></td><td class="num accent"><strong>280 K€</strong></td><td>Le tableau avec 38 % d'aléas</td></tr>
+      <tr><td>Haut</td><td class="num">400 K€+</td><td>Tableau quasi tenu — banc freelance opérationnel dès M5</td></tr>
+    </table>
+    <div class="etiquette" style="margin-top:8pt;">Compte de résultat simplifié — scénario central (K€)</div>
+    <table>
+      <tr><td>Chiffre d'affaires</td><td class="num"><strong>280</strong></td></tr>
+      <tr><td>Sous-traitance production</td><td class="num">–38</td></tr>
+      <tr><td>Outils IA + licences</td><td class="num">–8</td></tr>
+      <tr><td class="accent"><strong>Marge brute (76 %)</strong></td><td class="num accent"><strong>214</strong></td></tr>
+      <tr><td>SaaS, avocat, compta, marketing, assurance</td><td class="num">–17</td></tr>
+      <tr><td class="accent"><strong>EBE avant rémunérations fondateurs</strong></td><td class="num accent"><strong>~195</strong></td></tr>
+    </table>
+  </div>
+  <div class="hud-bot"><span>SCÈNE 04 / 07</span><span>P. 05</span></div>
+</section>
+
+<!-- ============ P6 : TRAJECTOIRE + TRÉSORERIE ============ -->
+<section class="page">
+  <div class="hud-top"><span><span class="rec">●</span> TEXTURE — BUSINESS PLAN</span><span>TC 05:00</span></div>
+  <div style="margin-top: 0.45in;">
+    <div class="etiquette">Scène 05 — Trajectoire 3 ans</div>
+    <h2>Prouver, systématiser, <em>densifier.</em></h2>
+    <table>
+      <tr><th></th><th class="num">A1 — Prouver</th><th class="num">A2 — Systématiser</th><th class="num">A3 — Densifier</th></tr>
+      <tr><td>CA</td><td class="num"><strong>280 K€</strong></td><td class="num"><strong>620 K€</strong></td><td class="num"><strong>1 000 K€</strong></td></tr>
+      <tr><td>Part de CA récurrent</td><td class="num">~15 %</td><td class="num">~25 %</td><td class="num">~30 %</td></tr>
+      <tr><td>Abonnés Studio Étendu (fin d'année)</td><td class="num">3</td><td class="num">6</td><td class="num">9</td></tr>
+      <tr><td>Taux de sous-traitance (% CA)</td><td class="num">13 %</td><td class="num">19 %</td><td class="num">22 %</td></tr>
+      <tr><td>Marge brute</td><td class="num">76 %</td><td class="num">70 %</td><td class="num">67 %</td></tr>
+      <tr><td>Équipe interne</td><td class="num">2</td><td class="num">+1 chef de projet</td><td class="num">+1 créa interne</td></tr>
+      <tr><td>EBE avant rému fondateurs</td><td class="num">~195 K€</td><td class="num">~360 K€</td><td class="num">~520 K€</td></tr>
+    </table>
+    <p>Cap volontaire : <strong>rester ≤ 4 internes à fin A3</strong> (le modèle 1600 : petite équipe, ticket élevé). La croissance passe par le prix, le mix et le réseau — pas par la masse salariale. Le marché US ne s'ouvre que si la France tourne &gt; 60 K€/mois sans les fondateurs en exécution.</p>
+    <hr class="filet" />
+    <div class="etiquette">Trésorerie & financement</div>
+    <ul>
+      <li><strong>Besoin de financement : 0 €.</strong> Mise de départ &lt; 3 K€ (domaines, INPI, avocat, SaaS).</li>
+      <li>Conditions de paiement = politique de trésorerie : Capsule 50/50, Film 40/30/30, abonnement d'avance.</li>
+      <li>Freelances payés à 30 jours — l'acompte client précède toujours la facture freelance : <strong>BFR structurellement négatif</strong>.</li>
+      <li>Règle : 3 mois de charges en trésorerie avant toute distribution aux fondateurs.</li>
+      <li>Statut visé : SAS à deux associés (à valider avec l'expert-comptable).</li>
+    </ul>
+    <div class="carton"><p>Chaque projet s'autofinance : l'acompte couvre les coûts directs avant le premier jour de production.</p></div>
+  </div>
+  <div class="hud-bot"><span>SCÈNE 05 / 07</span><span>P. 06</span></div>
+</section>
+
+<!-- ============ P7 : KPI + RISQUES ============ -->
+<section class="page">
+  <div class="hud-top"><span><span class="rec">●</span> TEXTURE — BUSINESS PLAN</span><span>TC 06:00</span></div>
+  <div style="margin-top: 0.45in;">
+    <div class="etiquette">Scène 06 — Pilotage & risques</div>
+    <h2>Ce qu'on <em>surveille.</em></h2>
+    <table>
+      <tr><th>KPI mensuel</th><th class="num">Cible</th></tr>
+      <tr><td>Conversations qualifiées entrantes</td><td class="num">15–20 / mois</td></tr>
+      <tr><td>Taux RDV → devis</td><td class="num">&gt; 60 %</td></tr>
+      <tr><td>Délai d'envoi de devis</td><td class="num">&lt; 48 h</td></tr>
+      <tr><td>Taux de closing devis → signé</td><td class="num">&gt; 30 %</td></tr>
+      <tr><td>Ticket moyen</td><td class="num">8–12 K€</td></tr>
+      <tr><td>Conversion Film → abonnement à J+60</td><td class="num">25–30 %</td></tr>
+      <tr><td>Délais de livraison tenus</td><td class="num">100 %</td></tr>
+      <tr><td>Coût de sous-traitance / projet</td><td class="num">≤ 20 % du prix</td></tr>
+      <tr><td>Taux de reprise des livrables freelance</td><td class="num">&lt; 20 %</td></tr>
+      <tr><td>Charge Daniel</td><td class="num">≤ 18 j/mois</td></tr>
+    </table>
+    <div class="etiquette" style="margin-top:10pt;">Risques & parades</div>
+    <table style="font-size:8pt;">
+      <tr><th>Risque</th><th>Parade</th></tr>
+      <tr><td>Droits portfolio Candia/XPeng refusés</td><td>Vérification écrite avant tout ; plan B : cas anonymisés + 1 spec premium</td></tr>
+      <tr><td>Pipeline plus lent que prévu</td><td>Scénario prudent encaissable ; outbound indépendant de l'audience ; réseau direct de Daniel dès M1</td></tr>
+      <tr><td>Qualité freelance insuffisante</td><td>Test payé, briefs de plans, 2/poste, KPI reprise &lt; 20 %</td></tr>
+      <tr><td>Daniel indisponible (homme-clé)</td><td>Pacte d'associés, process documenté, banc senior</td></tr>
+      <tr><td>Érosion du ticket moyen</td><td>5 règles pricing dans chaque proposal ; revue mensuelle des devis à deux</td></tr>
+      <tr><td>Guerre des prix IA</td><td>Le moat = regard + musique originale + diffusions réelles ; jamais répondre par le prix</td></tr>
+    </table>
+  </div>
+  <div class="hud-bot"><span>SCÈNE 06 / 07</span><span>P. 07</span></div>
+</section>
+
+<!-- ============ P8 : JALONS / GÉNÉRIQUE ============ -->
+<section class="page">
+  <div class="hud-top"><span><span class="rec">●</span> TEXTURE — BUSINESS PLAN</span><span>TC 07:00</span></div>
+  <div style="margin-top: 0.45in; flex:1; display:flex; flex-direction:column;">
+    <div class="etiquette">Scène 07 — Jalons go / no-go</div>
+    <h2>Le plan se <em>valide.</em></h2>
+    <table>
+      <tr><th>Échéance</th><th>Jalon</th><th>Si non atteint</th></tr>
+      <tr><td>Fin M1</td><td>Droits portfolio confirmés + pacte signé + domaines/INPI</td><td class="rec-txt"><strong>Stop</strong> tant que non réglé</td></tr>
+      <tr><td>Fin M2</td><td>3 clients fondateurs signés (≥ 25 K€ cumulés)</td><td>Revoir pricing d'entrée ou ciblage</td></tr>
+      <tr><td>Fin M4</td><td>1 mois &gt; 20 K€ + 2 freelances validés</td><td>Intensifier l'outbound</td></tr>
+      <tr><td>Fin M6</td><td>30 K€/mois + 1 abonné + closing ≥ 25 %</td><td>Diagnostic funnel : leads vs conversion</td></tr>
+      <tr><td>Fin M12</td><td>280 K€ cumulés + 3 abonnés + banc de 4 freelances</td><td>&lt; 150 K€ : repositionner l'offre d'entrée</td></tr>
+    </table>
+    <div class="carton" style="margin-top: 22pt;">
+      <p>Un studio « noyau + réseau » : deux fondateurs qui gardent le regard et la vente, un banc de freelances ciné qui exécute sous brief — zéro financement, rentable dès M1, 280 K€ en année 1, un chemin vers 1 M€ en année 3 sans jamais dépasser 4 personnes en interne.</p>
+    </div>
+    <div style="margin-top:auto; text-align:center; padding-bottom: 0.3in;">
+      <div style="font-family: var(--font-display); font-size: 22pt;">Tex<em style="color:var(--tungstene)">ture</em></div>
+      <div style="font-family: var(--font-tc); font-size: 6.5pt; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ivoire-doux); margin-top: 6pt;">On donne de la texture aux marques · texture.studio</div>
+    </div>
+  </div>
+  <div class="hud-bot"><span>FIN — SCÈNE 07 / 07</span><span>P. 08</span></div>
+</section>
+
+</body>
+</html>

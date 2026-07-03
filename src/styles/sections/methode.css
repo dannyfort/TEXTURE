@@ -1,0 +1,183 @@
+/* ============ SCÈNE 03 — LA MÉTHODE ============ */
+
+.methode {
+  /* translucide : les cadres de storyboard flottent derriere */
+  background: linear-gradient(to bottom, oklch(13% 0.008 70 / 0.25), oklch(9% 0.006 70 / 0.35));
+  padding: clamp(4.5rem, 9vh, 7rem) var(--gouttiere) clamp(1.5rem, 4vh, 3rem);
+  overflow: hidden;
+}
+
+/* desktop épinglé : la scène tient dans l'écran, cartes centrées dans l'espace restant */
+@media (min-width: 760px) {
+  .methode {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .methode-corps {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.methode-tete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.6rem;
+  margin-bottom: clamp(1.2rem, 3vh, 2.4rem);
+}
+
+@media (min-width: 760px) {
+  .methode-titre { font-size: clamp(2.2rem, 1rem + 3.6vw, 4.2rem); }
+}
+
+.methode-note {
+  font-family: var(--font-tc);
+  font-size: var(--text-petit);
+  color: var(--ivoire-doux);
+  text-align: right;
+  letter-spacing: 0.04em;
+}
+
+/* rail horizontal : bobine à gauche, fil de pellicule qui se déroule */
+.methode-rail {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: clamp(1.2rem, 2.5vh, 2rem);
+}
+
+.methode-bobine {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  color: var(--ivoire);
+  will-change: transform;
+}
+
+.methode-pellicule {
+  position: relative;
+  flex: 1;
+  height: 14px;
+  border-block: 1px solid var(--trait-fort);
+  background:
+    repeating-linear-gradient(to right,
+      transparent 0 8px,
+      var(--trait-fort) 8px 14px) left top 2px / 100% 3px no-repeat,
+    repeating-linear-gradient(to right,
+      transparent 0 8px,
+      var(--trait-fort) 8px 14px) left bottom 2px / 100% 3px no-repeat;
+}
+
+/* fil de progression : se déroule avec le scroll (scaleX scrubbé) */
+.methode-pellicule-fill {
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 2px;
+  translate: 0 -50%;
+  background: var(--ivoire);
+  transform-origin: left center;
+  transform: scaleX(0);
+}
+
+/* bande de cards : défile horizontalement, scrubbée au scroll */
+.methode-defile {
+  overflow: visible;
+}
+
+.methode-liste {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  width: max-content;
+  gap: clamp(1.2rem, 2.5vw, 2.4rem);
+  will-change: transform;
+}
+
+/* card-photogramme : perforations haut et bas, cadre net */
+.etape {
+  position: relative;
+  width: clamp(290px, 36vw, 470px);
+  will-change: transform, opacity;
+  padding: clamp(1.6rem, 2.5vh, 2.4rem) clamp(1.3rem, 2vw, 2rem) clamp(2.6rem, 4vh, 3.2rem);
+  background: var(--noir-salle);
+  border: 1px solid var(--trait-fort);
+}
+
+.etape::before,
+.etape::after {
+  content: '';
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  height: 7px;
+  background: repeating-linear-gradient(to right,
+    var(--trait-fort) 0 10px,
+    transparent 10px 24px);
+}
+
+.etape::before { top: 7px; }
+.etape::after { bottom: 7px; }
+
+.etape-num {
+  font-size: clamp(0.95rem, 0.8rem + 0.7vw, 1.35rem);
+  color: var(--tungstene-fonce);
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+/* illustration de l'étape : trait fin, lumière tungstène */
+.etape-visuel {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-bottom: 1.2rem;
+  color: var(--tungstene);
+  opacity: 0.9;
+}
+
+/* bras du clap (S.04) : claque à l'entrée de la card */
+.etape-clap-bras {
+  transform-origin: 14px 38px;
+}
+
+.etape-nom {
+  font-family: var(--font-display);
+  font-size: var(--text-h3);
+}
+
+.etape-desc {
+  color: var(--ivoire-doux);
+  font-size: 0.95rem;
+  max-width: 38ch;
+  margin-top: 0.4rem;
+}
+
+.etape-jalon {
+  width: fit-content;
+  margin-top: 1.2rem;
+  color: var(--rec);
+  letter-spacing: 0.24em;
+  border: 1px solid oklch(58% 0.21 27 / 0.45);
+  padding: 0.45em 0.9em;
+}
+
+@media (max-width: 759px) {
+  /* mobile : pas d'épinglage — les cards s'empilent verticalement */
+  .methode-rail { display: none; }
+
+  .methode-liste {
+    flex-direction: column;
+    width: auto;
+  }
+
+  .etape { width: auto; }
+
+  .methode-note { text-align: left; }
+}

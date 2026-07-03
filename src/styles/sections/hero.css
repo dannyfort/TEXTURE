@@ -1,0 +1,105 @@
+/* ============ SCÈNE 00 — LA SURFACE (hero) ============ */
+/* Le wordmark flotte au centre, au-dessus de l'océan rendu par galaxie.js. */
+
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* transparent : l'océan 3D vit derrière */
+  background: transparent;
+}
+
+.hero-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.4rem;
+  padding: 0 1.5rem;
+  will-change: transform, opacity;
+}
+
+.hero-sur {
+  margin: 0;
+  max-width: none;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--brume);
+}
+
+.hero-titre {
+  margin: 0 0 0 0.14em;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(3.4rem, 12.5vw, 12rem);
+  line-height: 1;
+  letter-spacing: 0.14em;
+  color: var(--ecume);
+  text-shadow: 0 0 90px rgba(140, 200, 215, 0.28);
+}
+
+.hero-sous {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(1.25rem, 1rem + 1.4vw, 2rem);
+  color: #c9dde3;
+}
+
+.hero .btn {
+  margin-top: 1.2rem;
+  background: var(--ecume);
+  color: var(--abysse);
+  border-color: var(--ecume);
+}
+
+.hero .btn:hover {
+  box-shadow: 0 0 48px rgba(160, 220, 235, 0.35);
+}
+
+/* Indication de scroll : trait qui file, sous le wordmark */
+.hero-scroll {
+  position: absolute;
+  bottom: calc(var(--letterbox) + 18px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.26em;
+  color: var(--brume);
+}
+
+.hero-scroll-trait {
+  display: block;
+  width: 1px;
+  height: 52px;
+  background: var(--brume);
+  transform-origin: top;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-scroll-trait {
+    animation: trait-file 2.2s var(--ease-cinema) infinite;
+  }
+}
+
+@keyframes trait-file {
+  0% { transform: scaleY(0); transform-origin: top; }
+  45% { transform: scaleY(1); transform-origin: top; }
+  55% { transform: scaleY(1); transform-origin: bottom; }
+  100% { transform: scaleY(0); transform-origin: bottom; }
+}
+
+@media (max-height: 660px) {
+  .hero-scroll { display: none; }
+  .hero-inner { gap: 0.9rem; }
+}

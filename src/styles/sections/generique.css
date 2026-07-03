@@ -1,0 +1,70 @@
+/* ============ GÉNÉRIQUE DE FIN (fin du voyage galaxie) ============ */
+
+.generique {
+  position: relative;
+  background: transparent;
+  padding: var(--space-section) var(--gouttiere) clamp(7rem, 10vh, 10rem);
+  text-align: center;
+}
+
+.generique-roll {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+}
+
+.generique-pre {
+  margin: 0;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.3em;
+  color: var(--sable);
+}
+
+.generique-titre {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-h2);
+  line-height: 1.02;
+  color: #efe9dd;
+}
+
+.generique-titre em {
+  font-style: italic;
+  color: var(--or-galaxie);
+}
+
+.generique .btn--grand {
+  background: var(--or-galaxie);
+  color: var(--abysse);
+  border-color: var(--or-galaxie);
+}
+
+.generique .btn--grand:hover {
+  box-shadow: 0 0 60px rgba(227, 196, 145, 0.4);
+}
+
+.generique-credits {
+  margin-top: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  color: var(--sable-sombre);
+}
+
+.generique-credits p {
+  margin: 0;
+  max-width: none;
+}
+
+.generique-credits .generique-copy {
+  margin-top: 1.6rem;
+  color: #6d6552;
+}

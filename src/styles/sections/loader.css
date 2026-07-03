@@ -1,0 +1,78 @@
+/* ============ AMORCE — LOADER COMPTE À REBOURS ============ */
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 50%, oklch(20% 0.02 75) 0%, var(--noir-fosse) 78%);
+}
+
+.loader::before,
+.loader::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* réticule façon amorce académique */
+.loader::before {
+  background:
+    linear-gradient(to right, transparent calc(50% - 0.5px), oklch(40% 0.02 75 / 0.5) 50%, transparent calc(50% + 0.5px)),
+    linear-gradient(to bottom, transparent calc(50% - 0.5px), oklch(40% 0.02 75 / 0.5) 50%, transparent calc(50% + 0.5px));
+}
+
+.loader-ring {
+  position: absolute;
+  width: min(58vmin, 460px);
+  aspect-ratio: 1;
+  border: 1px solid oklch(45% 0.025 78 / 0.65);
+  border-radius: 50%;
+}
+
+.loader-ring::after {
+  content: "";
+  position: absolute;
+  inset: 11%;
+  border: 1px solid oklch(45% 0.025 78 / 0.4);
+  border-radius: 50%;
+}
+
+.loader-count {
+  font-family: var(--font-display);
+  font-size: clamp(8rem, 30vmin, 17rem);
+  color: var(--ivoire);
+  line-height: 1;
+  font-variant-numeric: lining-nums;
+}
+
+/* balayage radial (aiguille de l'amorce) */
+.loader-sweep {
+  position: absolute;
+  width: min(58vmin, 460px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, oklch(82% 0.085 80 / 0.16) 0deg, transparent 58deg);
+}
+
+.loader-label {
+  position: absolute;
+  bottom: calc(var(--letterbox) + 1.4rem);
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.3em;
+  color: var(--ivoire-doux);
+}
+
+.loader.est-fini {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loader {
+    display: none;
+  }
+}

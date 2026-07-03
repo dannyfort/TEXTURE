@@ -1,0 +1,69 @@
+/* ============ TEXTURE — DESIGN TOKENS ============ */
+/* Direction : « La Projection Privée » — noir chaud de salle,
+   lumière tungstène, accent REC. */
+
+:root {
+  /* Palette */
+  --noir-salle: oklch(13% 0.008 70);        /* fond — noir chaud */
+  --noir-fosse: oklch(9% 0.006 70);         /* plus profond (letterbox, cadres) */
+  --ivoire: oklch(93% 0.015 85);            /* texte principal — os/écran */
+  --ivoire-doux: oklch(78% 0.018 80);       /* texte secondaire */
+  --tungstene: oklch(82% 0.085 80);         /* lumière projecteur — champagne */
+  --tungstene-fonce: oklch(62% 0.09 70);
+  --rec: oklch(58% 0.21 27);                /* rouge REC — accent rare */
+  --trait: oklch(30% 0.012 75);             /* filets, bordures */
+  --trait-fort: oklch(42% 0.02 78);
+
+  /* Typographie */
+  --font-display: "Instrument Serif", "Times New Roman", serif;
+  --font-ui: "Archivo", "Helvetica Neue", sans-serif;
+  --font-tc: "Space Mono", "SF Mono", monospace;
+
+  --text-base: clamp(1rem, 0.94rem + 0.3vw, 1.125rem);
+  --text-petit: 0.8125rem;
+  --text-micro: 0.6875rem;
+  --text-h3: clamp(1.4rem, 1.1rem + 1.2vw, 2.1rem);
+  --text-h2: clamp(2.4rem, 1.6rem + 3.6vw, 5.2rem);
+  --text-hero: clamp(2.9rem, 1.2rem + 8.2vw, 9rem);
+  --text-prix: clamp(2rem, 1.5rem + 2vw, 3.2rem);
+
+  /* Espacement */
+  --space-section: clamp(6rem, 4rem + 9vw, 14rem);
+  --space-bloc: clamp(2.5rem, 2rem + 2.5vw, 5rem);
+  --gouttiere: clamp(1.25rem, 1rem + 2vw, 3.5rem);
+
+  /* Cinéma */
+  --letterbox: clamp(28px, 4.5vh, 56px);
+  --ratio-scope: 2.39 / 1;
+
+  /* Motion */
+  --duree-vite: 180ms;
+  --duree: 420ms;
+  --duree-lente: 900ms;
+  --ease-sortie: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-cinema: cubic-bezier(0.65, 0, 0.15, 1);
+
+  /* Profondeur */
+  --z-grain: 80;
+  --z-letterbox: 70;
+  --z-hud: 60;
+  --z-flash: 50;
+  --z-loader: 100;
+
+  /* ---- Direction « Océan vers Galaxie » ----
+     Palette froide du voyage : surface, abysse, galaxie. Cohabite avec la
+     palette « Projection Privée » ci-dessus, que gardent la bobine et la
+     méthode (elles n'y touchent pas). */
+  --abysse: #060809;            /* base cosmique / nuit profonde */
+  --nuit-surface: #071016;      /* eau vue du dessus */
+  --sarcelle: #5fe0da;          /* accent teal — eau vive & galaxie */
+  --sarcelle-doux: #8fd0d6;
+  --ecume: #eef6f8;             /* écume / texte clair */
+  --brume: #9fb9c2;             /* libellés bleu-gris atténués */
+  --or-galaxie: #e3c491;        /* accent or — cartons galaxie */
+  --or-sombre: #a08752;
+  --sable: #c2bbaa;             /* corps de texte sur la galaxie */
+  --sable-sombre: #8f8875;
+  --trait-ecume: rgba(239, 233, 221, 0.14);
+  --trait-or: rgba(227, 196, 145, 0.3);
+}

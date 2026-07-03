@@ -1,0 +1,55 @@
+/* ============ TYPOGRAPHIE ============ */
+
+h1,
+h2,
+h3 {
+  font-weight: 400;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+
+h1 em,
+h2 em,
+h3 em {
+  font-style: italic;
+  color: var(--tungstene);
+}
+
+/* Titres de scène — grand serif */
+.hero-titre,
+.methode-titre,
+.oeil-titre,
+.tarifs-titre,
+.generique-titre,
+.reel-titre {
+  font-family: var(--font-display);
+  letter-spacing: -0.015em;
+}
+
+.methode-titre,
+.oeil-titre,
+.tarifs-titre,
+.generique-titre {
+  font-size: var(--text-h2);
+}
+
+/* Étiquettes techniques — mono timecode */
+.etiquette,
+.cadre-tag,
+.offre-tag,
+.etape-num,
+.profil-tc,
+.hero-sur,
+.hero-scroll,
+.etape-jalon {
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ivoire-doux);
+}
+
+/* Corps éditorial */
+p {
+  max-width: 62ch;
+}

@@ -1,0 +1,176 @@
+/* ============ SCÈNE 05 — TARIFS (dans la galaxie) ============ */
+
+.tarifs {
+  position: relative;
+  background: transparent;
+  padding: var(--space-section) var(--gouttiere);
+}
+
+.tarifs-titre {
+  max-width: 1400px;
+  margin: 0 auto var(--space-bloc);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-h2);
+  line-height: 1.02;
+  color: #efe9dd;
+}
+
+.tarifs-titre em {
+  font-style: italic;
+  color: var(--or-galaxie);
+}
+
+.tarifs-grille {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: clamp(1.5rem, 2.5vw, 2.5rem);
+  align-items: stretch;
+}
+
+/* carte translucide : la galaxie se voit à travers */
+.offre {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: clamp(1.5rem, 2vw, 2.4rem);
+  border: 1px solid rgba(227, 196, 145, 0.22);
+  background: rgba(6, 8, 9, 0.55);
+  backdrop-filter: blur(6px);
+}
+
+/* l'offre phare : liseré or plein + halo */
+.offre--phare {
+  border: 1px solid var(--or-galaxie);
+  background: rgba(20, 16, 10, 0.6);
+  box-shadow: 0 0 70px rgba(227, 196, 145, 0.12);
+}
+
+.offre-tag {
+  margin: 0;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sable);
+}
+
+.offre--phare .offre-tag {
+  color: var(--or-galaxie);
+}
+
+.offre-nom {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-h3);
+  color: #efe9dd;
+}
+
+.offre-prix {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-prix);
+  line-height: 1;
+  color: #efe9dd;
+}
+
+.offre-des {
+  display: block;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--sable);
+  margin-bottom: 0.4rem;
+}
+
+.offre-ht {
+  font-size: 0.45em;
+  color: var(--sable);
+}
+
+.offre-liste {
+  margin: 0.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  font-size: 0.92rem;
+  color: var(--sable);
+}
+
+.offre-liste strong {
+  color: #efe9dd;
+  font-weight: 500;
+}
+
+.offre-delai {
+  margin: auto 0 0;
+  padding-top: 1rem;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.18em;
+  color: var(--sable-sombre);
+}
+
+/* boutons : ligne or (courant) / plein or (phare) */
+.offre .btn {
+  text-align: center;
+  border-color: var(--or-galaxie);
+  color: var(--or-galaxie);
+  background: transparent;
+}
+
+.offre .btn:hover {
+  background: var(--or-galaxie);
+  color: var(--abysse);
+}
+
+.offre--phare .btn {
+  background: var(--or-galaxie);
+  color: var(--abysse);
+}
+
+.offre--phare .btn:hover {
+  box-shadow: 0 0 42px rgba(227, 196, 145, 0.35);
+}
+
+/* Abonnement : bandeau en pointillés */
+.tarifs-abo {
+  max-width: 1400px;
+  margin: clamp(2rem, 3vw, 3rem) auto 0;
+  border: 1px dashed rgba(227, 196, 145, 0.35);
+  padding: clamp(1.3rem, 2vw, 2rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+  justify-content: space-between;
+}
+
+.tarifs-abo-nom {
+  margin: 0;
+  font-size: 1.05rem;
+  color: #efe9dd;
+}
+
+.tarifs-abo-nom strong {
+  color: var(--or-galaxie);
+  font-weight: 600;
+}
+
+.tarifs-abo-desc {
+  margin: 0.35rem 0 0;
+  max-width: 62ch;
+  font-size: 0.92rem;
+  color: var(--sable);
+}
+
+.tarifs-abo .lien-souligne {
+  color: var(--or-galaxie);
+  background-image: linear-gradient(var(--or-galaxie), var(--or-galaxie));
+}

@@ -1,0 +1,107 @@
+/* ============ SCÈNE 04 — L'ŒIL (équipe, dans la galaxie) ============ */
+
+.oeil {
+  position: relative;
+  background: transparent;
+  padding: var(--space-section) var(--gouttiere);
+}
+
+.oeil-titre {
+  max-width: 1100px;
+  margin: 0 auto var(--space-bloc);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-h2);
+  line-height: 1.02;
+  color: #efe9dd;
+}
+
+.oeil-titre em {
+  font-style: italic;
+  color: var(--or-galaxie);
+}
+
+.oeil-grille {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: clamp(2rem, 4vw, 4rem);
+}
+
+.profil {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.profil-photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(227, 196, 145, 0.25);
+  background: linear-gradient(160deg, #14110c, var(--abysse));
+}
+
+.profil-photo::after {
+  content: "PORTRAIT — 24 I/S";
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  color: #6d6552;
+}
+
+.profil-tc {
+  position: absolute;
+  bottom: 10px;
+  left: 12px;
+  margin: 0;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  color: var(--or-galaxie);
+}
+
+.profil-nom {
+  margin: 0.7rem 0 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--text-h3);
+  color: #efe9dd;
+}
+
+.profil-role {
+  margin: 0;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--sable);
+}
+
+.profil-bio {
+  margin: 0.3rem 0 0;
+  max-width: 48ch;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--sable);
+}
+
+.profil-credits {
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  color: var(--sable-sombre);
+}
+
+.profil-credits span {
+  color: var(--or-galaxie);
+  font-style: italic;
+  font-family: var(--font-display);
+}

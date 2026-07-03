@@ -1,0 +1,205 @@
+/* ============ GLOBAL ============ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html {
+  color-scheme: dark;
+  scrollbar-color: var(--trait-fort) var(--noir-fosse);
+}
+
+body {
+  background: var(--noir-salle);
+  color: var(--ivoire);
+  font-family: var(--font-ui);
+  font-size: var(--text-base);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--tungstene);
+  color: var(--noir-fosse);
+}
+
+img,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--tungstene);
+  outline-offset: 3px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200;
+  padding: 0.6rem 1rem;
+  background: var(--tungstene);
+  color: var(--noir-fosse);
+  font-family: var(--font-tc);
+  font-size: var(--text-petit);
+  text-decoration: none;
+  transform: translateY(-110%);
+  transition: transform var(--duree-vite) var(--ease-sortie);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+main {
+  position: relative;
+}
+
+/* ---- Le plateau : canvas 3D unique, fixé derrière tout le contenu ---- */
+#stage {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+#smooth-wrapper {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- Boutons ---- */
+.btn {
+  display: inline-block;
+  padding: 0.85em 1.9em;
+  font-family: var(--font-tc);
+  font-size: var(--text-petit);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: 1px solid var(--tungstene);
+  transition:
+    background-color var(--duree-vite) var(--ease-sortie),
+    color var(--duree-vite) var(--ease-sortie),
+    box-shadow var(--duree) var(--ease-sortie),
+    transform var(--duree-vite) var(--ease-sortie);
+}
+
+.btn--plein {
+  background: var(--tungstene);
+  color: var(--noir-fosse);
+}
+
+.btn--plein:hover {
+  background: var(--ivoire);
+  border-color: var(--ivoire);
+  box-shadow: 0 0 42px oklch(82% 0.085 80 / 0.35);
+}
+
+.btn--ligne {
+  background: transparent;
+  color: var(--tungstene);
+}
+
+.btn--ligne:hover {
+  background: var(--tungstene);
+  color: var(--noir-fosse);
+}
+
+.btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+
+.btn--grand {
+  font-size: clamp(0.95rem, 0.8rem + 0.8vw, 1.35rem);
+  padding: 1em 2.2em;
+}
+
+.lien-souligne {
+  color: var(--tungstene);
+  font-family: var(--font-tc);
+  font-size: var(--text-petit);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  background-image: linear-gradient(var(--tungstene), var(--tungstene));
+  background-size: 100% 1px;
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  padding-bottom: 3px;
+  transition: opacity var(--duree-vite) ease;
+}
+
+.lien-souligne:hover {
+  opacity: 0.75;
+}
+
+/* ---- Letterbox 2.39:1 ---- */
+.letterbox {
+  position: fixed;
+  left: 0;
+  right: 0;
+  height: var(--letterbox);
+  background: var(--noir-fosse);
+  z-index: var(--z-letterbox);
+  pointer-events: none;
+}
+
+.letterbox--top { top: 0; transform-origin: top; }
+.letterbox--bottom { bottom: 0; transform-origin: bottom; }
+
+/* ---- Grain pellicule ---- */
+.grain {
+  position: fixed;
+  inset: -100px;
+  z-index: var(--z-grain);
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 240px 240px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .grain {
+    animation: grain-vie 0.9s steps(4) infinite;
+  }
+}
+
+@keyframes grain-vie {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(-38px, 22px); }
+  50% { transform: translate(24px, -30px); }
+  75% { transform: translate(-16px, -42px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* Décor : filet de section */
+section {
+  position: relative;
+}
