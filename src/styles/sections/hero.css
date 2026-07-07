@@ -43,22 +43,99 @@
   font-size: var(--text-micro);
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  color: var(--brume);
+  color: var(--ecume); /* blanc — lisible sur l'eau claire (plus de gris) */
+  text-shadow: 0 1px 16px rgba(6, 8, 9, 0.5);
 }
 
-/* Wordmark en continuité exacte avec la typo de l'ident vidéo :
-   Archivo Expanded Black (wdth 125, wght 900), même proportion de cadre
-   (le mot occupe ~91% de la largeur dans le film → ~14.2vw ici). */
+/* ---- TEXTURE STATIC LOGO ----
+   Wordmark en continuité EXACTE avec l'ident vidéo : les lettrages sont la
+   typo du film (masques/mot-tight.png, extrait du master 1080) — plus de
+   texte peint, le vrai texte reste pour l'accessibilité (.visually-hidden).
+   UNE seule vidéo de matière, agrandie plein-mot, n'apparaît qu'à
+   l'intérieur des lettres et change toutes les 2 s :
+   1. canvas.titre-canvas — rendu WebGL (sections/hero.js) : masque typo
+      échantillonné dans le shader, entrée des lettres depuis le hors-champ
+      avec motion blur, bump 3D au hover. Le canvas DÉBORDE du rect du mot
+      (inset négatifs ↔ constante PAD de hero.js) pour laisser voler les
+      lettres depuis l'extérieur.
+   2. video.titre-textures — la même vidéo, plate + masque CSS : source de
+      texture du shader ET secours affiché tel quel si WebGL indisponible.
+   3. ::after — sheen de verre discret par-dessus, masqué à la typo. */
 .hero-titre {
   margin: 0;
-  font-family: var(--font-ui);
-  font-weight: 900;
-  font-stretch: 125%;
-  font-size: clamp(3rem, 14.7vw, 14.5rem);
-  line-height: 1;
-  letter-spacing: -0.014em;
-  color: var(--ecume);
-  text-shadow: 0 0 90px rgba(140, 200, 215, 0.34);
+  line-height: 0;
+}
+
+.titre-visuel {
+  position: relative;
+  display: block;
+  width: min(91vw, 1500px);
+  aspect-ratio: 1754 / 210;
+  cursor: crosshair;
+  /* halo doux du wordmark (remplace l'ancien text-shadow) */
+  filter: drop-shadow(0 0 70px rgba(140, 200, 215, 0.28));
+}
+
+/* Matières plates (secours sans WebGL, et source du shader). */
+.titre-textures {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  z-index: 1;
+  filter: brightness(1.14) saturate(1.12);
+  -webkit-mask-image: url('/masques/mot-tight.png');
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url('/masques/mot-tight.png');
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+/* Rendu WebGL — déborde du mot (vols hors-champ) ; le masque typo est
+   appliqué DANS le shader, pas en CSS. Proportions liées à PAD (hero.js) :
+   x ±10 % du mot, y ±120 % du mot. */
+.titre-canvas {
+  position: absolute;
+  left: -10%;
+  top: -120%;
+  width: 120%;
+  max-width: none; /* neutralise le max-width:100% global (média) : le canvas DOIT déborder */
+  height: 340%;
+  z-index: 1;
+  display: none;
+  pointer-events: none;
+  filter: brightness(1.14) saturate(1.12);
+}
+
+.titre-visuel.a-webgl .titre-canvas { display: block; }
+.titre-visuel.a-webgl .titre-textures { visibility: hidden; } /* continue de décoder (source du shader) */
+
+/* Sheen de verre : reflet discret posé SUR les matières — la pointe
+   « liquid glass » sans sacrifier la lisibilité. */
+.titre-visuel::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg,
+      rgba(236, 249, 253, 0.20) 0%,
+      rgba(220, 240, 248, 0.07) 30%,
+      rgba(150, 192, 208, 0.00) 55%,
+      rgba(214, 238, 246, 0.10) 100%);
+  -webkit-mask-image: url('/masques/mot-tight.png');
+  -webkit-mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-image: url('/masques/mot-tight.png');
+  mask-size: 100% 100%;
+  mask-repeat: no-repeat;
+}
+
+@media (hover: none) {
+  .titre-visuel { cursor: default; }
 }
 
 .hero-sous {
@@ -94,14 +171,15 @@
   font-family: var(--font-tc);
   font-size: var(--text-micro);
   letter-spacing: 0.26em;
-  color: var(--brume);
+  color: var(--ecume); /* blanc — lisible sur l'eau (plus de gris) */
+  text-shadow: 0 1px 14px rgba(6, 8, 9, 0.5);
 }
 
 .hero-scroll-trait {
   display: block;
   width: 1px;
   height: 52px;
-  background: var(--brume);
+  background: var(--ecume);
   transform-origin: top;
 }
 

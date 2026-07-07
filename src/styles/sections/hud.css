@@ -13,9 +13,12 @@
   font-family: var(--font-tc);
   font-size: var(--text-micro);
   letter-spacing: 0.18em;
-  color: var(--ivoire-doux);
+  color: var(--ecume);
   pointer-events: none;
-  mix-blend-mode: difference;
+  /* Plus de mix-blend-mode: difference — il inversait le texte (gris illisible)
+     ET le point REC (non rouge) sur l'eau vive. Blanc + ombre douce = lisible
+     sur l'eau claire comme sur l'espace noir. */
+  text-shadow: 0 1px 10px rgba(6, 8, 9, 0.6);
 }
 
 .hud > * {
@@ -23,7 +26,7 @@
 }
 
 .hud-brand {
-  color: var(--ivoire);
+  color: var(--ecume);
   font-size: 0.8rem;
   letter-spacing: 0.34em;
   display: flex;
@@ -36,6 +39,7 @@
   height: 7px;
   border-radius: 50%;
   background: var(--rec);
+  box-shadow: 0 0 9px var(--rec), 0 0 3px var(--rec); /* vrai rouge REC + halo léger */
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -60,7 +64,7 @@
 
 .hud-cta {
   display: none;
-  color: var(--ivoire);
+  color: var(--ecume);
   text-decoration: none;
   border-bottom: 1px solid currentcolor;
   padding-bottom: 2px;

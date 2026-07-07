@@ -222,10 +222,18 @@ export function createReelLumiere(videos) {
       // tp ∈ [0, n+1] : une unité par écran + l'unité finale (carton CTA)
       const tp = progress * (n + 1);
 
-      // les enseignes : chaque logo s'allume avec son écran et ondule à peine
+      // les enseignes : le logo n'apparaît qu'une fois SON écran POSÉ — pas avant,
+      // ni en faible opacité au tout début du travelling. On réutilise la courbe
+      // d'arrivée de l'écran (mêmes bornes que la boucle des écrans plus bas) et
+      // on n'ouvre le logo qu'à la fin de cette arrivée (gate).
       logos.forEach((l) => {
-        const presence = Math.max(0, 1 - Math.abs(tp - (l.idx + 0.5)) / 0.8);
-        const o = presence * presence;
+        const debut = l.idx === 0 ? 0.0 : l.idx - 0.55;
+        const fin = l.idx === 0 ? 0.42 : l.idx - 0.1;
+        let arr = Math.min(1, Math.max(0, (tp - debut) / (fin - debut)));
+        arr = arr * arr * (3 - 2 * arr);
+        const gate = Math.min(1, Math.max(0, (arr - 0.6) / 0.4)); // rien tant que l'écran n'est pas ~posé
+        const presence = Math.max(0, 1 - Math.abs(tp - (l.idx + 0.7)) / 0.62);
+        const o = presence * presence * gate;
         l.logo.visible = o > 0.02;
         if (!l.logo.visible) return;
         l.mat.uniforms.uOpacity.value = o * 0.95;
@@ -255,7 +263,7 @@ export function createReelLumiere(videos) {
       ecrans.forEach((e, i) => {
         // fenêtre d'arrivée : l'écran 0 dès l'engagement du travelling, les
         // suivants pendant la bascule de regard qui les amène dans le cadre
-        const debut = i === 0 ? 0.03 : i - 0.55;
+        const debut = i === 0 ? 0.0 : i - 0.55; // écran 0 : arrive dès l'engagement (espace = bobine)
         const fin = i === 0 ? 0.42 : i - 0.1;
         let a = Math.min(1, Math.max(0, (tp - debut) / (fin - debut)));
         a = a * a * (3 - 2 * a); // décélère en se posant

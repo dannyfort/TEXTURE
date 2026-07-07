@@ -231,6 +231,19 @@
   display: block;
 }
 
+/* Pendant la déchirure, le fond de l'ident et la vidéo (le « papier ») doivent
+   laisser passer les trous : fond transparent + vidéo masquée. La vidéo continue
+   de décoder pour le shader (VideoTexture) — on utilise visibility, pas
+   display:none. Les zones consumées révèlent alors le HERO réel derrière le
+   canvas (eau + logo TEXTURE + UI), pas une copie de l'eau sans le logo. */
+.ident.est-etire {
+  background: transparent;
+}
+
+.ident.est-etire .ident-video {
+  visibility: hidden;
+}
+
 .ident-dechirure {
   position: absolute;
   inset: 0;

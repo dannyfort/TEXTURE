@@ -165,7 +165,7 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
   const heroEauEl = document.getElementById('heroEau'); // vidéo de surface DOM (floutée à la sortie)
   const splashVideo = document.createElement('video');
   splashVideo.muted = true; splashVideo.playsInline = true; splashVideo.preload = 'auto';
-  splashVideo.src = '/video/splash-plongee-v2.mp4'; // v2 : 9.6 s, plongée + longue descente god-rays
+  splashVideo.src = '/video/splash-master.mp4'; // « master » 12,2 s : plongée → pause god-rays → sortie → galaxie
   const splashEtat = { duree: 0, dernierT: -1, ok: true };
   splashVideo.addEventListener('loadedmetadata', () => {
     splashEtat.duree = splashVideo.duration || 0;
@@ -277,6 +277,30 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
     disposables.push(m);
   }
 
+  // Gouttes de SORTIE D'EAU : fines particules spéculaires qui jaillissent vers
+  // le haut quand on perce la surface (photoréaliste, additif, brèves). Pilotées
+  // par fx.spray — indépendantes des bulles sous-marines.
+  const SPRAY_N = isDesktop ? 170 : 80;
+  const sprayGeo = new THREE.BufferGeometry();
+  const sprayPos = new Float32Array(SPRAY_N * 3);
+  const spraySeed = new Float32Array(SPRAY_N);
+  const sprayReset = (i) => {
+    sprayPos[i * 3] = rnd(-2.4, 2.4);
+    sprayPos[i * 3 + 1] = rnd(-2.6, -0.4);   // partent du bas du cadre (la surface percée)
+    sprayPos[i * 3 + 2] = -rnd(1.1, 4.8);
+    spraySeed[i] = Math.random();
+  };
+  for (let i = 0; i < SPRAY_N; i += 1) sprayReset(i);
+  sprayGeo.setAttribute('position', new THREE.BufferAttribute(sprayPos, 3));
+  const sprayMat = new THREE.PointsMaterial({
+    map: texRound, size: 0.085, color: new THREE.Color('#eaf7ff'), transparent: true, opacity: 0,
+    blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, fog: false, sizeAttenuation: true,
+  });
+  const sprayPts = new THREE.Points(sprayGeo, sprayMat);
+  sprayPts.renderOrder = 620;
+  fxGroup.add(sprayPts);
+  disposables.push(sprayGeo, sprayMat);
+
   // ---------- SCÈNE C : galaxie ----------
   const gal = new THREE.Group();
   gal.position.y = 900;
@@ -382,7 +406,7 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
   const splash = { p: 0, o: 0, s: 1.95 }; // p=progression vidéo, o=opacité, s=échelle du plan
   //   s démarre à ~2× pour matcher le zoom de #heroEau à la coupe (morph parfait),
   //   puis revient à 1 (plein cadre) pendant la plongée.
-  const fx = { rush: 0, burst: 0, blur: 0 }; // rush/burst=particules ; blur=gate du flou de zoom (×vitesse)
+  const fx = { rush: 0, burst: 0, blur: 0, spray: 0 }; // +spray = gouttes de sortie d'eau
 
   // ---------- Timeline maîtresse : surface → plongée → sous l'eau → ascension ----------
   const triggers = [];
@@ -394,52 +418,62 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
   });
   master
     .to(cam, { y: 46, duration: 14 }, 0)
-    // ---- PONT SPLASH v2 : morph d'échelle + fondu RAPIDE + flou de zoom ----
-    // #heroEau (surface DOM) zoome jusqu'à ~2×. Le plan vidéo apparaît PRÉ-ZOOMÉ
-    // à la même échelle (splash.s) → aucune rupture de taille : morph parfait.
-    // Fondu court, masqué par un flou de zoom ∝ vitesse de scroll (uBlur). La
-    // vidéo (v2, 9.6 s) est scrubée : plongée rapide surface→impact→sous l'eau,
-    // puis LONGUE descente dans les rais de lumière — elle remplace une bonne
-    // part du sous-marin WebGL, qui reprend au handoff tardif (splash.o→0 ~pos 40).
-    // Tout est scrubé → entièrement réversible (on remonte, on ressort).
+    // ---- PONT SPLASH « MASTER » : plongée → PAUSE sous l'eau (lecture du
+    //      manifeste) → remontée rapide → sortie de l'eau → ciel → GALAXIE, qui
+    //      se fond dans la galaxie WebGL. Une seule vidéo (12,2 s) scrubée,
+    //      SYNCHRONISÉE au scroll d'après la géométrie réelle des sections
+    //      (mesurée) : le manifeste se lit ≈ pos 22→48, le texte sort ≈ pos 48,
+    //      #sortie couvre pos 62,5→74. Morph d'entrée #heroEau→vidéo inchangé
+    //      (échelle splash.s + fondu rapide + flou de zoom ∝ vitesse). Réversible.
     .to('#heroEau', { scale: 2.0, duration: 13, ease: 'power1.in' }, 0)
-    .to(splash, { o: 1, duration: 1.6, ease: 'power2.out' }, 12)          // FONDU RAPIDE (plan splash)
-    .to('#heroEau', { opacity: 0, duration: 1.8, ease: 'power2.in' }, 12.2) // surface s'efface vite dessous
-    .to(splash, { s: 1, duration: 9, ease: 'power2.out' }, 12.4)          // le plan dé-zoome → plein cadre
-    .to(splash, { p: 0.30, duration: 8, ease: 'none' }, 12.4)            // surface → entrée sous l'eau (rapide)
-    .to(splash, { p: 1, duration: 22, ease: 'none' }, 20.4)             // longue descente dans les rais
-    .to(splash, { o: 0, duration: 6, ease: 'power2.in' }, 40)           // handoff tardif → WebGL sous-marin
-    // flou de zoom : pic autour de la coupe/impact, résiduel pendant la plongée
+    .to(splash, { o: 1, duration: 1.6, ease: 'power2.out' }, 12)           // FONDU RAPIDE d'entrée
+    .to('#heroEau', { opacity: 0, duration: 1.8, ease: 'power2.in' }, 12.2)
+    .to(splash, { s: 1, duration: 9, ease: 'power2.out' }, 12.4)           // dé-zoom → plein cadre (morph)
+    // SCRUB vidéo synchronisé (ease none = mapping scroll↔temps prévisible) :
+    .to(splash, { p: 0.164, duration: 10, ease: 'none' }, 12)            // 0→2 s : surface → impact → sous l'eau
+    .to(splash, { p: 0.738, duration: 25, ease: 'none' }, 22)            // 2→9 s : PAUSE god-rays (lecture manifeste)
+    .to(splash, { p: 0.869, duration: 6, ease: 'none' }, 47)             // 9→10.6 s : remontée rapide → sortie d'eau
+    .to(splash, { p: 1, duration: 13, ease: 'none' }, 53)               // 10.6→12.2 s : ciel → étoiles (jusqu'à pos 66)
+    // La vidéo GARDE ses étoiles jusqu'à l'arrivée de la bobine : le fondu vers la
+    // galaxie WebGL est calé sur le début de #galaxie (pos ~70) pour qu'il n'y ait
+    // PAS de vide « espace vide » avant le 1er écran — l'espace naît quand la bobine arrive.
+    .to(splash, { o: 0, duration: 4, ease: 'power2.inOut' }, 66)         // fondu → galaxie WebGL, calé sur la bobine
+    // flou de zoom : pic à la coupe d'entrée + regain à la remontée rapide
     .fromTo(fx, { blur: 0 }, { blur: 1, duration: 1.8, ease: 'power2.out' }, 11.6)
     .to(fx, { blur: 0.3, duration: 5, ease: 'power2.inOut' }, 13.4)
     .to(fx, { blur: 0, duration: 8, ease: 'power1.out' }, 20)
-    // particules : flux montant + explosion de mousse à l'impact (~pos 16.6)
+    .to(fx, { blur: 0.6, duration: 2.5, ease: 'power2.in' }, 46)         // remontée : flou de vitesse
+    .to(fx, { blur: 0, duration: 5, ease: 'power1.out' }, 54)
+    // particules : impact d'entrée, léger flux pendant la pause, jaillissement
+    // de bulles à la remontée, puis plus rien une fois hors de l'eau.
     .to(fx, { rush: 1, duration: 4.5, ease: 'power1.in' }, 12.6)
     .to(fx, { burst: 1, duration: 1.2, ease: 'power2.in' }, 15.6)
     .to(fx, { burst: 0, duration: 3, ease: 'power2.out' }, 16.8)
-    .to(fx, { rush: 0.14, duration: 6, ease: 'power1.out' }, 19)         // léger flux résiduel dans les rais
-    .to(fx, { rush: 0, duration: 8, ease: 'power1.out' }, 34)
-    // plongée caméra — le monde sous-marin s'installe derrière le plan vidéo
+    .to(fx, { rush: 0.12, duration: 6, ease: 'power1.out' }, 19)         // fond de bulles pendant la lecture
+    .to(fx, { rush: 0.8, duration: 3, ease: 'power2.in' }, 47)           // jaillissement à la remontée
+    .to(fx, { rush: 0, duration: 5, ease: 'power1.out' }, 54)            // hors de l'eau → plus de bulles
+    .to(fx, { spray: 1, duration: 1.4, ease: 'power2.out' }, 51)         // GOUTTES : perçage de la surface (~pos 53)
+    .to(fx, { spray: 0, duration: 3, ease: 'power1.out' }, 52.6)
+    // caméra WebGL (cachée derrière la vidéo ; sert au repli + à la galaxie finale)
     .to(cam, { y: -6, duration: 8, ease: 'power2.in' }, 13)
     .to(cam, { y: -96, rx: -0.06, duration: 12, ease: 'power2.out' }, 21)
-    .to(cam, { z: 26, duration: 10 }, 21) // finit à pos 31 (avant la dérive du manifeste)
-    .to(atmo, { mixUnder: 1, duration: 8, ease: 'power1.in' }, 30)       // fog underwater prêt AVANT le handoff
+    .to(cam, { z: 26, duration: 10 }, 21)
+    .to(atmo, { mixUnder: 1, duration: 8, ease: 'power1.in' }, 30)
     .to('#heroInner', { opacity: 0, scale: 1.16, duration: 6, ease: 'power1.in' }, 11)
     .to('#heroScroll', { opacity: 0, duration: 3 }, 11)
-    .to('#flash', { opacity: 0.9, duration: 1.0, ease: 'power2.in' }, 15.8) // flash à l'impact/mousse
+    .to('#flash', { opacity: 0.9, duration: 1.0, ease: 'power2.in' }, 15.8) // flash à l'impact
     .to('#flash', { opacity: 0, duration: 2.6, ease: 'power2.out' }, 16.8)
-    // dérive sous-marine pendant le manifeste — RACCOURCIE (24 au lieu de 50) :
-    // le texte est lu, on ne s'attarde plus dans le vide avant de remonter
-    .to(cam, { z: -34, x: 8, ry: 0.16, duration: 24 }, 31)
-    // ascension — déclenchée bien plus tôt (55 au lieu de 81) : elle enchaîne
-    // presque directement sur la dernière ligne du manifeste
-    .to(cam, { y: -20, rx: 0.42, duration: 7, ease: 'power3.in' }, 55)
-    .to(cam, { y: 640, duration: 8, ease: 'power2.in' }, 62)
-    .to(cam, { y: 900, rx: 0, ry: 0, x: 0, z: 0, duration: 4, ease: 'power2.out' }, 70)
-    .to(atmo, { mixUnder: 0, duration: 5 }, 62)
-    .to(atmo, { mixSpace: 1, galaxy: 1, duration: 9 }, 63)
-    .to('#flash', { opacity: 0.9, duration: 1.4, ease: 'power2.in' }, 63)
-    .to('#flash', { opacity: 0, duration: 3.5, ease: 'power2.out' }, 64.6);
+    // dérive sous-marine (cachée derrière la vidéo) pendant le manifeste
+    .to(cam, { z: -34, x: 8, ry: 0.16, duration: 22 }, 31)
+    // ASCENSION WebGL calée sur la sortie d'eau de la vidéo : la galaxie WebGL est
+    // prête (atmo.galaxy≈1, caméra dans les étoiles) quand la vidéo se fond dedans.
+    .to(cam, { y: -20, rx: 0.42, duration: 6, ease: 'power3.in' }, 50)
+    .to(cam, { y: 640, duration: 8, ease: 'power2.in' }, 56)
+    .to(cam, { y: 900, rx: 0, ry: 0, x: 0, z: 0, duration: 6, ease: 'power2.out' }, 64)
+    .to(atmo, { mixUnder: 0, duration: 6 }, 56)
+    .to(atmo, { mixSpace: 1, galaxy: 1, duration: 8 }, 61);              // galaxie WebGL prête ~pos 69 = arrivée bobine
+  // Pas de flash à l'entrée de la galaxie : on arrive DANS LE NOIR — c'est
+  // l'espace. La vidéo (fin = étoiles) se fond directement dans la galaxie WebGL.
   triggers.push(master.scrollTrigger);
 
   // Manifeste : entrées séquentielles des quatre lignes
@@ -576,7 +610,7 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
         }
       }
 
-      const fxOn = (fx.rush > 0.002 || fx.burst > 0.002) && splashEtat.ok;
+      const fxOn = (fx.rush > 0.002 || fx.burst > 0.002 || fx.spray > 0.002) && splashEtat.ok;
       fxGroup.visible = fxOn;
       if (fxOn) {
         // flux : les particules montent (on plonge) et filent vers le spectateur
@@ -610,6 +644,21 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
           }
           s.material.opacity = Math.min(0.85, fx.rush * 0.5 + fx.burst * 0.7) * (0.5 + s.userData.v * 0.12);
         });
+        // gouttes de sortie d'eau : jaillissent vers le haut + s'écartent, brèves
+        if (fx.spray > 0.002) {
+          const arr = sprayGeo.attributes.position.array;
+          for (let i = 0; i < SPRAY_N; i += 1) {
+            arr[i * 3 + 1] += dt * (5 + spraySeed[i] * 11);                            // montée rapide
+            arr[i * 3] += (arr[i * 3] >= 0 ? 1 : -1) * dt * (1.3 + spraySeed[i] * 2.4); // s'écarte du centre
+            arr[i * 3 + 2] += dt * (1.1 + spraySeed[i] * 2);                           // vers la caméra
+            if (arr[i * 3 + 1] > 2.8 || arr[i * 3 + 2] > -0.35) sprayReset(i);
+          }
+          sprayGeo.attributes.position.needsUpdate = true;
+          sprayMat.opacity = Math.min(0.9, fx.spray);
+          sprayMat.size = 0.07 + fx.spray * 0.05;
+        } else if (sprayMat.opacity !== 0) {
+          sprayMat.opacity = 0;
+        }
       }
 
       // visibilités par zone

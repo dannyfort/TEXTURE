@@ -1,0 +1,57 @@
+/* ============ CURSEUR LUMIÈRE ============
+   Le pointeur est un point de lumière : cœur vif + orbe très subtile.
+   Posé par sections/curseur.js (desktop pointer fine uniquement) ;
+   html.a-curseur-lumiere masque le curseur natif partout. */
+
+html.a-curseur-lumiere,
+html.a-curseur-lumiere * {
+  cursor: none !important;
+}
+
+.curseur-lumiere {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2147483647; /* au-dessus de tout, loader et ident compris */
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.curseur-lumiere.est-visible {
+  opacity: 1;
+}
+
+.curseur-point,
+.curseur-halo {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  mix-blend-mode: screen; /* lumière : s'additionne à ce qu'elle éclaire */
+  will-change: transform;
+}
+
+/* Cœur : point de lumière net, léger rayonnement. */
+.curseur-point {
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  background: radial-gradient(circle,
+    #fff 0%,
+    rgba(220, 244, 255, 0.95) 35%,
+    rgba(170, 225, 250, 0) 72%);
+  box-shadow:
+    0 0 10px 2px rgba(200, 235, 252, 0.85),
+    0 0 30px 8px rgba(150, 212, 240, 0.35);
+}
+
+/* Orbe : halo large, très subtil, courte inertie derrière le point. */
+.curseur-halo {
+  width: 170px;
+  height: 170px;
+  margin: -85px 0 0 -85px;
+  background: radial-gradient(circle,
+    rgba(175, 222, 246, 0.13) 0%,
+    rgba(155, 205, 238, 0.05) 45%,
+    rgba(150, 200, 235, 0) 72%);
+}

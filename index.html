@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="/src/styles/sections/oeil.css" />
   <link rel="stylesheet" href="/src/styles/sections/tarifs.css" />
   <link rel="stylesheet" href="/src/styles/sections/generique.css" />
+  <link rel="stylesheet" href="/src/styles/sections/curseur.css" />
 </head>
 <body>
   <a class="skip-link" href="#contenu">Aller au contenu</a>
@@ -104,7 +105,19 @@
         <section class="hero" id="hero" data-scene="SCÈNE 00 — LA SURFACE" aria-labelledby="hero-titre">
           <div class="hero-inner" id="heroInner">
             <p class="hero-sur">Studio de création publicitaire — IA, regard de réalisateur</p>
-            <h1 class="hero-titre" id="hero-titre">TEXTURE</h1>
+            <!-- TEXTURE STATIC LOGO — une matière par lettre (typo exacte de
+                 l'ident vidéo) ; régulièrement deux lettres échangent leurs
+                 matières en cut + lens flare. Entrée des lettres depuis le
+                 hors-champ pendant la combustion finale, bump 3D au hover
+                 (shader WebGL — sections/hero.js). Vidéo plate masquée en
+                 secours sans WebGL. -->
+            <h1 class="hero-titre" id="hero-titre">
+              <span class="visually-hidden">TEXTURE</span>
+              <span class="titre-visuel" id="titreVisuel" aria-hidden="true">
+                <video class="titre-textures" id="titreTextures" src="/video/textures-lettres.mp4" autoplay muted loop playsinline preload="auto" disablepictureinpicture></video>
+                <canvas class="titre-canvas" id="titreCanvas"></canvas>
+              </span>
+            </h1>
             <p class="hero-sous">Votre marque a-t-elle de la texture&nbsp;?</p>
             <a class="btn btn--plein" href="mailto:hello@texture.studio">Prendre rendez-vous</a>
           </div>

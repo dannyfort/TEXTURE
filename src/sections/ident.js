@@ -1,4 +1,5 @@
 import { gsap } from '../lib/motion.js';
+import { lancerEntreeLogo } from './hero.js';
 
 /**
  * Ident « le mot est la matière » : TEXTURE verrouillé plein cadre,
@@ -67,6 +68,7 @@ export function playIdent({ skip = false } = {}) {
       clearTimeout(idleTimer);
       video?.pause();
       if (rendu) gsap.ticker.remove(rendu);
+      if (surFrameFeu) gsap.ticker.remove(surFrameFeu);
       window.removeEventListener('resize', surResize);
       dechirure?.dispose();
       passer?.removeEventListener('click', terminer);
@@ -114,12 +116,19 @@ export function playIdent({ skip = false } = {}) {
     const scrub = { cible: 0, courant: 0 };
     let dechirure = null;
     let rendu = null;
+    // Sortie FEU : la combustion est CALÉE sur le plan feu du film — sa 1re image
+    // = 1re image du feu (T_FEU), sa dernière = dernière image du feu (fin du film).
+    // Pilotée par la LECTURE de la vidéo (currentTime), pas par une durée fixe.
+    const T_FEU = 4.25;     // TC mesuré de la 1re image du plan feu (cut asphalte→feu)
+    let feuActif = false;   // true → le rendu tire scrub.courant depuis currentTime
+    let feuFin = 0;         // TC de fin = dernière image du feu (fin du film)
+    let surFrameFeu = null; // ticker qui déclenche la combustion pile au T_FEU
     const surResize = () => dechirure?.resize();
 
-    // Pendant que le papier brûle, on prépare le hero DERRIÈRE la déchirure
-    // (canvas opaque) : police du wordmark chargée + mise en page forcée, pour
-    // que sa révélation à la fin de la combustion soit réellement instantanée
-    // (aucun swap de police ni reflow tardif au moment du fondu de sortie).
+    // Le hero est révélé À TRAVERS les trous du papier (canvas transparent aux
+    // zones consumées) DÈS que la combustion commence : il doit donc être prêt
+    // AVANT le 1er trou. On force ici la police du wordmark + la mise en page,
+    // pour zéro swap de police / reflow tardif visible dans les premières lueurs.
     const prechaufferHero = () => {
       try { document.fonts?.load('900 10rem "Archivo"'); } catch { /* noop */ }
       const inner = document.getElementById('heroInner');
@@ -129,22 +138,37 @@ export function playIdent({ skip = false } = {}) {
     };
 
     const construireEtire = async () => {
-      ident.classList.add('est-etire');
       const eau = document.getElementById('heroEau');
-      eau?.play().catch(() => {});
+      eau?.play().catch(() => {}); // l'eau réelle tourne DERRIÈRE le canvas (révélée par les trous)
       prechaufferHero();
       try {
         const { createDechirure } = await import('../scenes/dechirure.js');
-        dechirure = createDechirure({ canvas: canvasDechirure, videoA: video, videoB: eau });
+        dechirure = createDechirure({ canvas: canvasDechirure, videoA: video });
         dechirure.resize();
+        dechirure.render(0, 0); // 1re image = papier plein OPAQUE (aucun trou encore)
+        // On ne dévoile le canvas (fond ident transparent + vidéo « papier »
+        // masquée) qu'APRÈS ce rendu opaque : sinon le canvas encore vierge
+        // laisserait flasher le hero plein écran le temps de l'import.
+        ident.classList.add('est-etire');
         window.addEventListener('resize', surResize);
+        // Les lettres du logo volent dans le cadre PENDANT la combustion :
+        // l'eau se révèle à travers les braises et TEXTURE s'assemble dessus.
+        lancerEntreeLogo();
       } catch {
         terminer(); // pas de WebGL : on saute simplement au hero
         return;
       }
       etireTl = gsap.timeline({ paused: true, onComplete: terminer });
       etireTl.to({}, { duration: 1 }); // porteur de progression (scrub 0 → 1)
-      rendu = () => dechirure.render(scrub.courant, gsap.ticker.deltaRatio() / 60);
+      rendu = () => {
+        // Chemin FEU : la combustion suit la lecture du plan feu — 0 à T_FEU,
+        // 1 à la fin du film. L'image de feu qui dégouline se consume EN direct.
+        if (feuActif) {
+          const p = (video.currentTime - T_FEU) / (feuFin - T_FEU);
+          scrub.courant = Math.min(1, Math.max(0, p));
+        }
+        dechirure.render(scrub.courant, gsap.ticker.deltaRatio() / 60);
+      };
       gsap.ticker.add(rendu);
     };
 
@@ -193,7 +217,28 @@ export function playIdent({ skip = false } = {}) {
       const abandon = setTimeout(() => ko(new Error('démarrage trop lent')), 1600);
       video.addEventListener('error', () => { clearTimeout(abandon); ko(new Error('erreur vidéo')); }, { once: true });
       video.addEventListener('playing', () => { clearTimeout(abandon); ok(); }, { once: true });
-      video.addEventListener('ended', terminer, { once: true }); // fin du film → même dissolution que la déchirure
+      // Fin du film (après le feu) : PAS de cut — la dernière image (le feu,
+      // les lettres qui dégoulinent) se CONSUME en points de braise
+      // (déchirure WebGL, même vocabulaire que la sortie scroll) et révèle
+      // l'eau ; au même moment les lettres de TEXTURE volent dans le cadre
+      // (lancerEntreeLogo, déclenché par construireEtire).
+      // Le plan FEU (TEXTURE en flammes qui dégoulinent) commence à T_FEU et finit
+      // avec le film. On PRÉCHARGE la déchirure (zéro à-coup à l'import), on la
+      // déclenche pile à la 1re image du feu, puis la combustion est pilotée par la
+      // lecture (rendu) pour finir EXACTEMENT sur la dernière image du feu.
+      import('../scenes/dechirure.js').catch(() => {});
+      surFrameFeu = () => {
+        if (fini || etireLance) return;
+        if ((video.currentTime || 0) < T_FEU) return;
+        etireLance = true;
+        gsap.ticker.remove(surFrameFeu);
+        feuFin = (Number.isFinite(video.duration) && video.duration) ? video.duration : (T_FEU + 1.17);
+        construireEtire().then(() => { if (!fini) feuActif = true; });
+      };
+      gsap.ticker.add(surFrameFeu);
+      // Fin du film : la combustion est déjà à 1 (tout consumé, l'eau est là) →
+      // on dissout simplement l'overlay ident.
+      video.addEventListener('ended', () => { if (!fini) terminer(); }, { once: true });
       // Fichier préchargé (preload=auto, readyState 4) : on affiche la 1ère
       // frame immédiatement puis on lance la lecture — coupe directe sur
       // l'image, sans passage à vide sur le fond de l'ident.

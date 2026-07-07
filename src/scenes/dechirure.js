@@ -3,12 +3,15 @@
  *
  * L'écran se perce en plusieurs points depuis les bords, comme un papier qui
  * brûle : les trous s'ouvrent (bruit fbm biaisé vers les côtés), leurs lisières
- * rougeoient (braise) et ondulent (distorsion de chaleur), et l'eau du hero
- * apparaît derrière. `render(progress)` est piloté par le scrub du scroll —
- * progress 1 = l'image de l'ident est entièrement consumée.
+ * rougeoient (braise) et ondulent (distorsion de chaleur). Les zones consumées
+ * deviennent TRANSPARENTES : le canvas laisse voir le HERO RÉEL derrière lui
+ * (vidéo d'eau #heroEau + wordmark TEXTURE + UI, tous en DOM) — et non une
+ * simple copie de l'eau. Ainsi, dès que le papier brûle, l'eau qui apparaît
+ * contient DÉJÀ le logo et les écritures. `render(progress)` est piloté par le
+ * scrub du scroll — progress 1 = l'image de l'ident est entièrement consumée.
  *
- * Autonome : son propre renderer sur un canvas dédié dans l'overlay ident
- * (vie courte — créé au premier scroll, disposé à la fin de l'intro).
+ * Autonome : son propre renderer (canvas transparent) sur un canvas dédié dans
+ * l'overlay ident (vie courte — créé au premier scroll, disposé à la fin).
  */
 import * as THREE from 'three';
 
@@ -16,11 +19,9 @@ const FRAG = /* glsl */ `
   precision highp float;
   varying vec2 vUv;
   uniform sampler2D uTexA;
-  uniform sampler2D uTexB;
   uniform float uProgress;
   uniform float uTime;
   uniform vec2 uCoverA;
-  uniform vec2 uCoverB;
 
   float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
   float vnoise(vec2 p) {
@@ -47,9 +48,7 @@ const FRAG = /* glsl */ `
 
     // Seuil qui descend avec le scroll : t > 0 = zone consumée. Calibré (champ
     // mesuré ∈ [0.20, 0.94]) pour que RIEN ne soit ouvert à progress 0 (1.035 >
-    // champ max) et que l'eau soit PLEINE seulement vers progress ~0.95 (avant :
-    // ~0.70, d'où un long « eau sans logo »). La combustion finit donc quasiment
-    // quand l'ident se dissout → plus de temps mort avant l'apparition du logo.
+    // champ max) et que TOUT le soit vers progress ~0.95.
     float t = champ - (1.035 - uProgress * 0.90);
 
     float ouvert = smoothstep(0.0, 0.045, t);
@@ -60,16 +59,18 @@ const FRAG = /* glsl */ `
     vec2 dis = (vec2(vnoise(uv * 24.0 + uTime * 0.7), vnoise(uv * 24.0 - uTime * 0.6)) - 0.5)
       * (lisiere * 0.028 + charbon * 0.012);
 
+    // Papier = vidéo ident, carbonisé sur le pourtour, braise sur la lisière vive.
     vec3 colA = texture2D(uTexA, cover(uv + dis, uCoverA)).rgb;
-    vec3 colB = texture2D(uTexB, cover(uv, uCoverB)).rgb;
-
-    // Papier carbonisé sur le pourtour, braise sur la lisière vive.
     colA *= 1.0 - charbon * 0.75;
     vec3 braise = mix(vec3(1.0, 0.42, 0.1), vec3(0.38, 0.88, 0.85), 0.22)
       * lisiere * (1.15 + 0.5 * vnoise(uv * 60.0 + uTime * 2.0));
 
-    vec3 col = mix(colA, colB, ouvert) + braise * (1.0 - ouvert * 0.55);
-    gl_FragColor = vec4(col, 1.0);
+    // Le papier est OPAQUE ; les trous deviennent TRANSPARENTS (alpha → 0) pour
+    // révéler le hero réel (eau + logo + UI) posé derrière le canvas. On garde
+    // la lisière encore chaude un peu opaque pour que la braise reste visible.
+    vec3 col = colA + braise * (1.0 - ouvert * 0.55);
+    float alpha = max(1.0 - ouvert, lisiere * 0.6);
+    gl_FragColor = vec4(col, alpha);
   }
 `;
 
@@ -81,27 +82,29 @@ const VERT = /* glsl */ `
   }
 `;
 
-export function createDechirure({ canvas, videoA, videoB }) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: false, powerPreference: 'high-performance' });
+export function createDechirure({ canvas, videoA }) {
+  // alpha:true → canvas transparent ; les zones consumées laissent voir le DOM
+  // (hero) derrière. premultipliedAlpha reste par défaut (true) : cohérent avec
+  // le NormalBlending de three qui écrit un framebuffer prémultiplié.
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 0);
 
   const scene = new THREE.Scene();
   const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
 
   const texA = new THREE.VideoTexture(videoA);
-  const texB = new THREE.VideoTexture(videoB);
   texA.colorSpace = THREE.SRGBColorSpace;
-  texB.colorSpace = THREE.SRGBColorSpace;
 
   const uniforms = {
     uTexA: { value: texA },
-    uTexB: { value: texB },
     uProgress: { value: 0 },
     uTime: { value: 0 },
     uCoverA: { value: new THREE.Vector2(1, 1) },
-    uCoverB: { value: new THREE.Vector2(1, 1) },
   };
-  const mat = new THREE.ShaderMaterial({ uniforms, vertexShader: VERT, fragmentShader: FRAG });
+  const mat = new THREE.ShaderMaterial({
+    uniforms, vertexShader: VERT, fragmentShader: FRAG, transparent: true,
+  });
   const quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), mat);
   scene.add(quad);
 
@@ -127,7 +130,6 @@ export function createDechirure({ canvas, videoA, videoB }) {
       // plein écran ; ici on ne fixe que la résolution du buffer de rendu.
       renderer.setSize(w, h, false);
       coverScale(videoA, uniforms.uCoverA.value, w / h);
-      coverScale(videoB, uniforms.uCoverB.value, w / h);
     },
     render(progress, dt = 0.016) {
       uniforms.uProgress.value = progress;
@@ -136,12 +138,10 @@ export function createDechirure({ canvas, videoA, videoB }) {
       // requestVideoFrameCallback, jamais déclenché si la vidéo est en pause
       // (ident terminé, onglet en arrière-plan…).
       if (videoA.readyState >= 2) texA.needsUpdate = true;
-      if (videoB.readyState >= 2) texB.needsUpdate = true;
       renderer.render(scene, camera);
     },
     dispose() {
       texA.dispose();
-      texB.dispose();
       quad.geometry.dispose();
       mat.dispose();
       renderer.dispose();
