@@ -17,10 +17,11 @@ export function playLoader({ skip = false } = {}) {
   return new Promise((resolve) => {
     const tl = gsap.timeline({
       defaults: { ease: 'none' },
-      onComplete: () => {
-        loader.classList.add('est-fini');
-        resolve();
-      },
+      // Pas de fondu de sortie, pas de masquage ici : le loader reste OPAQUE
+      // jusqu'à ce que l'ident le recouvre (playIdent le masque ensuite).
+      // Sinon le hero (eau) transparaît le temps du fondu, entre l'amorce et
+      // la 1ère frame de la vidéo. On veut une COUPE FRANCHE « 1 » → image.
+      onComplete: resolve,
     });
 
     [3, 2, 1].forEach((n) => {
@@ -29,6 +30,6 @@ export function playLoader({ skip = false } = {}) {
         .fromTo(sweep, { rotation: 0 }, { rotation: 360, duration: 0.52 }, '<');
     });
 
-    tl.to(loader, { opacity: 0, duration: 0.55, ease: EASE.cinema }, '+=0.08');
+    tl.to({}, { duration: 0.24 }); // bref maintien sur « 1 » avant la coupe
   });
 }

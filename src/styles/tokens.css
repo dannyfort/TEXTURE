@@ -45,10 +45,12 @@
 
   /* Profondeur */
   --z-grain: 80;
-  --z-letterbox: 70;
   --z-hud: 60;
   --z-flash: 50;
   --z-loader: 100;
+  /* Les barres cinéma passent devant tout — y compris l'amorce et l'ident
+     vidéo — pour un cadrage 2.39:1 cohérent sur toute l'expérience. */
+  --z-letterbox: 120;
 
   /* ---- Direction « Océan vers Galaxie » ----
      Palette froide du voyage : surface, abysse, galaxie. Cohabite avec la

@@ -2,6 +2,7 @@ import {
   gsap, ScrollTrigger, ScrollSmoother, prefersReducedMotion,
 } from './lib/motion.js';
 import { playLoader } from './sections/loader.js';
+import { playIdent } from './sections/ident.js';
 import { initHud } from './sections/hud.js';
 import { initReel } from './sections/reel.js';
 import { initMethode } from './sections/methode.js';
@@ -15,6 +16,7 @@ async function start() {
   // (media reduce) remet à plat les sections hautes (manifeste, transitions).
   if (prefersReducedMotion) {
     document.getElementById('loader')?.classList.add('est-fini');
+    document.getElementById('ident')?.classList.add('est-fini');
     document.getElementById('stage')?.remove();
     document.querySelectorAll('.cadre-video').forEach((v) => freezeFrame(v));
     initHud();
@@ -52,7 +54,8 @@ async function start() {
       .catch(() => { stageCanvas.remove(); /* le site vit très bien sans WebGL */ })
     : Promise.resolve(stageCanvas?.remove());
 
-  await Promise.all([playLoader(), scenesPretes]);
+  // L'amorce 3-2-1 joue d'abord (masque le boot WebGL), puis l'ident.
+  await Promise.all([playLoader().then(() => playIdent()), scenesPretes]);
   smoother.paused(false);
   ScrollTrigger.refresh();
 

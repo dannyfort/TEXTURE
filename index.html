@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/src/styles/global.css" />
   <link rel="stylesheet" href="/src/styles/typography.css" />
   <link rel="stylesheet" href="/src/styles/sections/loader.css" />
+  <link rel="stylesheet" href="/src/styles/sections/ident.css" />
   <link rel="stylesheet" href="/src/styles/sections/hud.css" />
   <link rel="stylesheet" href="/src/styles/sections/galaxie.css" />
   <link rel="stylesheet" href="/src/styles/sections/hero.css" />
@@ -36,6 +37,42 @@
     <p class="loader-label">TEXTURE — AMORCE 35&nbsp;MM</p>
   </div>
 
+  <!-- IDENT : « le mot est la matière » — 6 beats puis plongée vers l'océan -->
+  <div class="ident" id="ident" aria-hidden="true">
+    <svg width="0" height="0" style="position:absolute" focusable="false">
+      <defs>
+        <filter id="identGoo">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="b" />
+          <feColorMatrix in="b" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 22 -9" />
+        </filter>
+        <filter id="identBruit">
+          <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+      </defs>
+    </svg>
+    <div class="ident-scene">
+      <video class="ident-video" id="identVideo" src="/video/texture-ident.mp4" muted playsinline preload="auto"></video>
+      <div class="ident-goo">
+        <div class="ident-mot" id="identMot"><span class="ident-lettre m-vide">T</span><span class="ident-lettre m-vide">E</span><span class="ident-lettre m-vide">X</span><span class="ident-lettre m-vide">T</span><span class="ident-lettre m-vide">U</span><span class="ident-lettre m-vide">R</span><span class="ident-lettre m-vide">E</span></div>
+      </div>
+    </div>
+    <!-- Sortie au scroll : déchirure WebGL — l'écran se perce depuis les
+         bords comme un papier qui brûle et révèle l'eau derrière
+         (scenes/dechirure.js, scrubbé par la molette). -->
+    <div class="ident-etire" id="identEtire" aria-hidden="true">
+      <canvas class="ident-dechirure" id="identDechirure"></canvas>
+    </div>
+    <div class="ident-hud">
+      <div><span>+ 43.70°N</span><span class="ident-rec">REC ●</span><span>7.27°E ×</span></div>
+      <div><span>FILMS PUBLICITAIRES — NICE</span><span class="ident-passer" role="presentation">PASSER →</span></div>
+    </div>
+    <svg class="ident-grain" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false">
+      <rect width="100" height="100" filter="url(#identBruit)" />
+    </svg>
+    <div class="ident-fondu"></div>
+  </div>
+
   <!-- HUD : timecode permanent + nom de scène -->
   <header class="hud" id="hud">
     <p class="hud-brand">TEXTURE<span class="hud-rec" aria-hidden="true"></span></p>
@@ -50,6 +87,11 @@
 
   <!-- Le plateau : la scène 3D « océan → galaxie » vit sur ce canvas unique -->
   <canvas id="stage" aria-hidden="true"></canvas>
+
+  <!-- LA SURFACE : vidéo d'eau réelle (remplace l'océan WebGL vu du dessus).
+       Au scroll : zoom dans l'eau → fondu imperceptible vers la vidéo de
+       plongeon (splashPlane WebGL, scrubée, dans galaxie.js) → sous-marin WebGL. -->
+  <video class="hero-eau" id="heroEau" src="/video/eau-surface.mp4" muted loop playsinline autoplay preload="auto" aria-hidden="true"></video>
 
   <!-- Flash de coupe : traversée de la surface + sortie de l'eau -->
   <div class="flash" id="flash" aria-hidden="true"></div>

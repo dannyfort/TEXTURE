@@ -1,5 +1,6 @@
 /* ============ SCÈNE 00 — LA SURFACE (hero) ============ */
-/* Le wordmark flotte au centre, au-dessus de l'océan rendu par galaxie.js. */
+/* Le wordmark flotte au centre, au-dessus de la VIDÉO d'eau réelle
+   (l'océan WebGL vu du dessus a été remplacé par la vidéo). */
 
 .hero {
   position: relative;
@@ -7,8 +8,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  /* transparent : l'océan 3D vit derrière */
+  /* transparent : la vidéo d'eau vit derrière */
   background: transparent;
+}
+
+/* La surface : vidéo d'eau en boucle, fixée entre le canvas (z:0, avant elle
+   dans le DOM) et le contenu (#smooth-wrapper, z:1). Le zoom au scroll est
+   piloté par la timeline maîtresse de galaxie.js. */
+.hero-eau {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform, opacity, filter;
 }
 
 .hero-inner {
@@ -31,15 +46,19 @@
   color: var(--brume);
 }
 
+/* Wordmark en continuité exacte avec la typo de l'ident vidéo :
+   Archivo Expanded Black (wdth 125, wght 900), même proportion de cadre
+   (le mot occupe ~91% de la largeur dans le film → ~14.2vw ici). */
 .hero-titre {
-  margin: 0 0 0 0.14em;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(3.4rem, 12.5vw, 12rem);
+  margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: clamp(3rem, 14.7vw, 14.5rem);
   line-height: 1;
-  letter-spacing: 0.14em;
+  letter-spacing: -0.014em;
   color: var(--ecume);
-  text-shadow: 0 0 90px rgba(140, 200, 215, 0.28);
+  text-shadow: 0 0 90px rgba(140, 200, 215, 0.34);
 }
 
 .hero-sous {

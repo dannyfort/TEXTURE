@@ -17,7 +17,6 @@ import * as THREE from 'three';
 import { gsap, ScrollTrigger } from '../lib/motion.js';
 
 // Réglages « live » du design (props éditeur) figés sur leurs défauts.
-const VITESSE_OCEAN = 0.45;
 const DENSITE_PARTICULES = 1;
 
 export function createGalaxie({ renderer, isDesktop = true } = {}) {
@@ -41,71 +40,11 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
   const texAnam = softDot(128, 44, 'rgba(210,255,250,0.9)');
   const texGlow = softDot(96, 96, 'rgba(160,235,228,0.85)');
 
-  // ---------- SCÈNE A : océan (vu du dessus) ----------
-  const oceanUni = {
-    uTime: { value: 0 },
-    uAmp: { value: 1.0 },
-    uDeep: { value: new THREE.Color('#0a2e36') },
-    uCrest: { value: new THREE.Color('#8fd0d6') },
-    uFoam: { value: new THREE.Color('#eef6f8') },
-    uGlint: { value: new THREE.Color('#dff6f8') },
-  };
-  const oceanMat = new THREE.ShaderMaterial({
-    uniforms: oceanUni,
-    side: THREE.DoubleSide,
-    fog: false,
-    vertexShader: `
-      uniform float uTime; uniform float uAmp;
-      varying vec3 vP; varying float vH;
-      float wave(vec2 p, vec2 d, float f, float s, float a){ return sin(dot(p,d)*f + uTime*s)*a; }
-      void main(){
-        vec3 pos = position;
-        float h = 0.0;
-        h += wave(pos.xy, vec2(0.7,0.7), 0.045, 0.5, 2.6);
-        h += wave(pos.xy, vec2(-0.4,0.9), 0.08, 0.38, 1.5);
-        h += wave(pos.xy, vec2(1.0,-0.2), 0.16, 0.65, 0.7);
-        h += wave(pos.xy, vec2(-0.8,-0.6), 0.32, 0.9, 0.32);
-        h += wave(pos.xy, vec2(0.3,-1.0), 0.55, 1.2, 0.14);
-        pos.z += h * uAmp;
-        vH = h; vP = pos;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(pos,1.0);
-      }`,
-    fragmentShader: `
-      uniform float uTime; uniform vec3 uDeep; uniform vec3 uCrest; uniform vec3 uFoam; uniform vec3 uGlint;
-      varying vec3 vP; varying float vH;
-      float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453); }
-      float vnoise(vec2 p){
-        vec2 i = floor(p); vec2 f = fract(p);
-        vec2 u = f*f*(3.0-2.0*f);
-        return mix(mix(hash(i), hash(i+vec2(1.0,0.0)), u.x),
-                   mix(hash(i+vec2(0.0,1.0)), hash(i+vec2(1.0,1.0)), u.x), u.y);
-      }
-      float fbm(vec2 p){
-        float v = 0.0; float a = 0.5;
-        for(int k=0;k<4;k++){ v += a*vnoise(p); p = p*2.13 + vec2(17.3, 9.1); a *= 0.5; }
-        return v;
-      }
-      void main(){
-        float t = smoothstep(-3.2, 3.2, vH);
-        vec3 col = mix(uDeep, uCrest, pow(t, 1.7));
-        vec2 q = vP.xy * 0.055;
-        float flow = fbm(q + vec2(uTime*0.05, -uTime*0.03));
-        float vein = fbm(q*2.4 + vec2(flow*1.8) + vec2(-uTime*0.04, uTime*0.06));
-        float fil = 1.0 - abs(vein*2.0 - 1.0);
-        fil = smoothstep(0.78, 0.97, fil);
-        float crestMask = smoothstep(0.6, 0.95, t);
-        float plaque = smoothstep(0.45, 0.75, flow);
-        col = mix(col, uFoam, fil * crestMask * plaque * 0.5);
-        float glint = exp(-abs(vP.x)*0.045) * (0.35 + 0.65*fbm(vP.xy*0.12 + vec2(0.0, uTime*0.08)));
-        col += uGlint * glint * 0.14 * (0.4 + 0.6*t);
-        float sp = hash(floor(vP.xy*1.6) + floor(uTime*1.5));
-        col += uGlint * step(0.997, sp) * 0.45;
-        gl_FragColor = vec4(col, 1.0);
-      }`,
-  });
-  const ocean = new THREE.Mesh(new THREE.PlaneGeometry(700, 700, 220, 220), oceanMat);
-  ocean.rotation.x = -Math.PI / 2;
-  scene.add(ocean);
+  // ---------- SCÈNE A : le pont SPLASH ----------
+  // L'océan vu du dessus est la vidéo #heroEau (DOM). La traversée de la
+  // surface (plongeon → mousse → bulles → bleu profond) est une vidéo SCRUBÉE
+  // rendue en WebGL : voir « pont SPLASH » plus bas (après le monde sous-marin),
+  // placé là pour réutiliser rnd()/disposables et se fondre dans le décor.
 
   // ---------- SCÈNE B : monde sous-marin ----------
   const uw = new THREE.Group();
@@ -119,7 +58,7 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
   floor.rotation.x = -Math.PI / 2; floor.position.y = FLOOR;
   uw.add(floor);
 
-  const disposables = [oceanMat, ocean.geometry, floor.geometry, floor.material, texRound, texAnam, texGlow];
+  const disposables = [floor.geometry, floor.material, texRound, texAnam, texGlow];
 
   // Coraux procéduraux
   const coralTip = new THREE.SpriteMaterial({ map: texGlow, color: new THREE.Color('#5fe0da'), blending: THREE.AdditiveBlending, transparent: true, opacity: 0.9, depthWrite: false });
@@ -211,6 +150,130 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
     s.position.set(rnd(-100, 100), rnd(FLOOR + 10, -10), rnd(-60, 50));
     s.userData.v = rnd(0.2, 1);
     bokehs.push(s); uw.add(s);
+    disposables.push(m);
+  }
+
+  // ---------- PONT SPLASH : traversée vidéo scrubée + particules 3D ----------
+  // Une vidéo de plongeon (surface ensoleillée → mousse d'impact → bulles →
+  // bleu profond) rendue en VideoTexture sur un plan COLLÉ À LA CAMÉRA, dont
+  // le currentTime est piloté par le scroll. Sa 1re image = surface d'eau : le
+  // fondu depuis #heroEau est imperceptible. À la fin, le plan se fond dans ce
+  // monde sous-marin (uw). Réversible : on remonte au scroll, on ressort.
+  const texStreak = softDot(24, 128, 'rgba(225,248,250,0.9)');
+  const SPLASH_FRAME = 1 / 30; // quantification 30 i/s (splash v2 = 30 fps)
+  const SPLASH_DIST = 8;       // distance du plan vidéo devant la caméra
+  const heroEauEl = document.getElementById('heroEau'); // vidéo de surface DOM (floutée à la sortie)
+  const splashVideo = document.createElement('video');
+  splashVideo.muted = true; splashVideo.playsInline = true; splashVideo.preload = 'auto';
+  splashVideo.src = '/video/splash-plongee-v2.mp4'; // v2 : 9.6 s, plongée + longue descente god-rays
+  const splashEtat = { duree: 0, dernierT: -1, ok: true };
+  splashVideo.addEventListener('loadedmetadata', () => {
+    splashEtat.duree = splashVideo.duration || 0;
+    try { splashVideo.currentTime = 0.001; } catch { /* noop */ } // force le décodage de la 1re image (Safari)
+  }, { once: true });
+  splashVideo.load();
+
+  // VideoTexture (seule à téléverser correctement un <video> dans three), mais on
+  // NEUTRALISE son auto-update par frame : sur une vidéo scrubée EN PAUSE,
+  // VideoTexture.update() force needsUpdate à CHAQUE frame sur les navigateurs sans
+  // requestVideoFrameCallback → réupload 1080p permanent. En le rendant no-op, on
+  // ne téléverse plus que sur une VRAIE nouvelle image : l'événement 'seeked' (tous
+  // navigateurs) + le requestVideoFrameCallback natif quand il existe.
+  const splashTex = new THREE.VideoTexture(splashVideo);
+  splashTex.colorSpace = THREE.SRGBColorSpace;
+  splashTex.minFilter = THREE.LinearFilter;
+  splashTex.generateMipmaps = false;
+  splashTex.update = () => {}; // upload piloté par 'seeked'/rVFC, pas par frame rendue
+  splashVideo.addEventListener('seeked', () => { splashTex.needsUpdate = true; });
+
+  scene.add(camera); // pour que les enfants de la caméra (plan + particules) soient rendus
+  // Matériau du plan vidéo : FLOU DE ZOOM radial piloté par la vitesse de scroll
+  // (uBlur), pour masquer élégamment la coupe #heroEau → vidéo. On échantillonne
+  // la texture en sRGB et on la réécrit telle quelle (pas de conversion) : à
+  // uBlur=0 le plan est PIXEL-IDENTIQUE à la vidéo DOM #heroEau → morph sans
+  // dérive de couleur. (ShaderMaterial : three n'injecte pas de tonemap/encodage.)
+  const splashUniforms = {
+    uTex: { value: splashTex },
+    uOpacity: { value: 0 },
+    uBlur: { value: 0 },                       // 0..~0.2 : amplitude du pas radial vers le centre
+    uCenter: { value: new THREE.Vector2(0.5, 0.5) },
+  };
+  const splashMat = new THREE.ShaderMaterial({
+    uniforms: splashUniforms,
+    transparent: true, depthTest: false, depthWrite: false, fog: false,
+    vertexShader: `
+      varying vec2 vUv;
+      void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+    `,
+    fragmentShader: `
+      uniform sampler2D uTex; uniform float uOpacity; uniform float uBlur; uniform vec2 uCenter;
+      varying vec2 vUv;
+      void main() {
+        if (uBlur < 0.0008) {                  // pas de flou → 1 seul échantillon (évite 11 fetches inutiles)
+          gl_FragColor = vec4(texture2D(uTex, vUv).rgb, uOpacity);
+          return;
+        }
+        vec2 dir = uCenter - vUv;              // vers le centre = flou de zoom
+        vec3 acc = vec3(0.0); float wsum = 0.0;
+        for (int i = 0; i < 12; i++) {
+          float f = float(i) / 11.0;           // 0..1
+          float w = 1.0 - f * 0.55;            // les échantillons proches pèsent plus
+          acc += texture2D(uTex, vUv + dir * (f * uBlur)).rgb * w; wsum += w;
+        }
+        gl_FragColor = vec4(acc / wsum, uOpacity);
+      }
+    `,
+  });
+  const splashPlane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), splashMat);
+  splashPlane.position.z = -SPLASH_DIST;
+  splashPlane.renderOrder = 500; // au-dessus du décor sous-marin, sous les particules
+  splashPlane.visible = false;
+  camera.add(splashPlane);
+  splashVideo.addEventListener('error', () => {
+    // fichier absent : pas de pont vidéo — le flash masque seul la coupe
+    splashEtat.ok = false; splashPlane.visible = false;
+  }, { once: true });
+  let splashW = 1; let splashH = 1; // plein cadre « cover » (base), recalculé au resize
+  disposables.push(splashPlane.geometry, splashMat, splashTex, texStreak);
+
+  // Particules de traversée collées à la caméra, DEVANT le plan vidéo :
+  // bulles fines, traînées de vitesse, grosses bulles d'objectif.
+  const fxGroup = new THREE.Group();
+  fxGroup.visible = false;
+  camera.add(fxGroup);
+  const mkRush = ({ count, tex, size, tint, spread }) => {
+    const geo = new THREE.BufferGeometry();
+    const pos = new Float32Array(count * 3);
+    const seed = new Float32Array(count);
+    for (let i = 0; i < count; i += 1) {
+      const z = -rnd(1.4, SPLASH_DIST - 0.6);
+      pos[i * 3] = rnd(-1, 1) * Math.abs(z) * spread * 1.9;
+      pos[i * 3 + 1] = rnd(-1, 1) * Math.abs(z) * spread;
+      pos[i * 3 + 2] = z;
+      seed[i] = Math.random();
+    }
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    const mat = new THREE.PointsMaterial({
+      map: tex, size, color: new THREE.Color(tint), transparent: true, opacity: 0,
+      blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, fog: false, sizeAttenuation: true,
+    });
+    const pts = new THREE.Points(geo, mat);
+    pts.renderOrder = 600;
+    fxGroup.add(pts);
+    disposables.push(geo, mat);
+    return { geo, mat, seed, spread, count };
+  };
+  const rushBulles = mkRush({ count: isDesktop ? 480 : 220, tex: texRound, size: 0.16, tint: '#d4f2f4', spread: 0.8 });
+  const rushTraits = mkRush({ count: isDesktop ? 150 : 70, tex: texStreak, size: 0.55, tint: '#bfe9ec', spread: 0.8 });
+  const lensBulles = [];
+  for (let i = 0; i < 9; i += 1) {
+    const m = new THREE.SpriteMaterial({ map: texGlow, color: new THREE.Color('#cdeef0'), transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, fog: false });
+    const s = new THREE.Sprite(m);
+    const sc = rnd(0.35, 1.1); s.scale.set(sc, sc, 1);
+    s.position.set(rnd(-2.4, 2.4), rnd(-1.6, 1.6), -rnd(1.2, 2.6));
+    s.userData = { v: rnd(1.4, 3), sway: rnd(0, Math.PI * 2) };
+    s.renderOrder = 610;
+    lensBulles.push(s); fxGroup.add(s);
     disposables.push(m);
   }
 
@@ -314,8 +377,12 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
 
   // Proxies animés par GSAP (le scroll écrit ici, update() lit)
   const cam = { y: 66, x: 0, z: 0, rx: -1.38, ry: 0, rz: 0 };
-  const atmo = { mixUnder: 0, mixSpace: 0, galaxy: 0, amp: 1 };
+  const atmo = { mixUnder: 0, mixSpace: 0, galaxy: 0 };
   const dolly = { z: 0 };
+  const splash = { p: 0, o: 0, s: 1.95 }; // p=progression vidéo, o=opacité, s=échelle du plan
+  //   s démarre à ~2× pour matcher le zoom de #heroEau à la coupe (morph parfait),
+  //   puis revient à 1 (plein cadre) pendant la plongée.
+  const fx = { rush: 0, burst: 0, blur: 0 }; // rush/burst=particules ; blur=gate du flou de zoom (×vitesse)
 
   // ---------- Timeline maîtresse : surface → plongée → sous l'eau → ascension ----------
   const triggers = [];
@@ -327,16 +394,40 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
   });
   master
     .to(cam, { y: 46, duration: 14 }, 0)
-    .to(atmo, { amp: 1.45, duration: 14 }, 0)
-    // plongée
-    .to(cam, { y: -6, duration: 8, ease: 'power2.in' }, 14)
-    .to(cam, { y: -96, rx: -0.06, duration: 9, ease: 'power2.out' }, 22)
-    .to(cam, { z: 26, duration: 9 }, 22)
-    .to(atmo, { mixUnder: 1, duration: 6, ease: 'power1.in' }, 17)
-    .to('#heroInner', { opacity: 0, scale: 1.16, duration: 6, ease: 'power1.in' }, 14)
-    .to('#heroScroll', { opacity: 0, duration: 3 }, 14)
-    .to('#flash', { opacity: 0.95, duration: 1.6, ease: 'power2.in' }, 20.4)
-    .to('#flash', { opacity: 0, duration: 3.2, ease: 'power2.out' }, 22.2)
+    // ---- PONT SPLASH v2 : morph d'échelle + fondu RAPIDE + flou de zoom ----
+    // #heroEau (surface DOM) zoome jusqu'à ~2×. Le plan vidéo apparaît PRÉ-ZOOMÉ
+    // à la même échelle (splash.s) → aucune rupture de taille : morph parfait.
+    // Fondu court, masqué par un flou de zoom ∝ vitesse de scroll (uBlur). La
+    // vidéo (v2, 9.6 s) est scrubée : plongée rapide surface→impact→sous l'eau,
+    // puis LONGUE descente dans les rais de lumière — elle remplace une bonne
+    // part du sous-marin WebGL, qui reprend au handoff tardif (splash.o→0 ~pos 40).
+    // Tout est scrubé → entièrement réversible (on remonte, on ressort).
+    .to('#heroEau', { scale: 2.0, duration: 13, ease: 'power1.in' }, 0)
+    .to(splash, { o: 1, duration: 1.6, ease: 'power2.out' }, 12)          // FONDU RAPIDE (plan splash)
+    .to('#heroEau', { opacity: 0, duration: 1.8, ease: 'power2.in' }, 12.2) // surface s'efface vite dessous
+    .to(splash, { s: 1, duration: 9, ease: 'power2.out' }, 12.4)          // le plan dé-zoome → plein cadre
+    .to(splash, { p: 0.30, duration: 8, ease: 'none' }, 12.4)            // surface → entrée sous l'eau (rapide)
+    .to(splash, { p: 1, duration: 22, ease: 'none' }, 20.4)             // longue descente dans les rais
+    .to(splash, { o: 0, duration: 6, ease: 'power2.in' }, 40)           // handoff tardif → WebGL sous-marin
+    // flou de zoom : pic autour de la coupe/impact, résiduel pendant la plongée
+    .fromTo(fx, { blur: 0 }, { blur: 1, duration: 1.8, ease: 'power2.out' }, 11.6)
+    .to(fx, { blur: 0.3, duration: 5, ease: 'power2.inOut' }, 13.4)
+    .to(fx, { blur: 0, duration: 8, ease: 'power1.out' }, 20)
+    // particules : flux montant + explosion de mousse à l'impact (~pos 16.6)
+    .to(fx, { rush: 1, duration: 4.5, ease: 'power1.in' }, 12.6)
+    .to(fx, { burst: 1, duration: 1.2, ease: 'power2.in' }, 15.6)
+    .to(fx, { burst: 0, duration: 3, ease: 'power2.out' }, 16.8)
+    .to(fx, { rush: 0.14, duration: 6, ease: 'power1.out' }, 19)         // léger flux résiduel dans les rais
+    .to(fx, { rush: 0, duration: 8, ease: 'power1.out' }, 34)
+    // plongée caméra — le monde sous-marin s'installe derrière le plan vidéo
+    .to(cam, { y: -6, duration: 8, ease: 'power2.in' }, 13)
+    .to(cam, { y: -96, rx: -0.06, duration: 12, ease: 'power2.out' }, 21)
+    .to(cam, { z: 26, duration: 10 }, 21) // finit à pos 31 (avant la dérive du manifeste)
+    .to(atmo, { mixUnder: 1, duration: 8, ease: 'power1.in' }, 30)       // fog underwater prêt AVANT le handoff
+    .to('#heroInner', { opacity: 0, scale: 1.16, duration: 6, ease: 'power1.in' }, 11)
+    .to('#heroScroll', { opacity: 0, duration: 3 }, 11)
+    .to('#flash', { opacity: 0.9, duration: 1.0, ease: 'power2.in' }, 15.8) // flash à l'impact/mousse
+    .to('#flash', { opacity: 0, duration: 2.6, ease: 'power2.out' }, 16.8)
     // dérive sous-marine pendant le manifeste — RACCOURCIE (24 au lieu de 50) :
     // le texte est lu, on ne s'attarde plus dans le vide avant de remonter
     .to(cam, { z: -34, x: 8, ry: 0.16, duration: 24 }, 31)
@@ -411,7 +502,6 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
   const startT = performance.now();
   const clock = new THREE.Clock();
   const tmpC = new THREE.Color();
-  let waterT = 0;
   let smoothVel = 0;
   let lastY;
 
@@ -423,15 +513,16 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
     resize(w, h) {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
+      // plan splash : couvre le cadre (object-fit: cover) à sa distance
+      const fH = 2 * Math.tan(((camera.fov * Math.PI) / 180) / 2) * SPLASH_DIST;
+      const fW = fH * (w / h);
+      const va = 16 / 9; // ratio de la vidéo splash
+      if (fW / fH > va) { splashW = fW; splashH = fW / va; } else { splashH = fH; splashW = fH * va; }
+      splashPlane.scale.set(splashW, splashH, 1);
     },
     update() {
       const dt = Math.min(clock.getDelta(), 0.05);
       const t = (performance.now() - startT) / 1000;
-
-      // vitesse de l'eau (ralentie)
-      waterT += dt * VITESSE_OCEAN;
-      oceanUni.uTime.value = waterT;
-      oceanUni.uAmp.value = atmo.amp;
 
       // atmosphère : couleur de fond + densité de brouillard
       tmpC.copy(zones.surface.c).lerp(zones.under.c, atmo.mixUnder).lerp(zones.space.c, atmo.mixSpace);
@@ -449,15 +540,83 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
       camera.rotation.y = cam.ry + mouse.x * -0.03;
       camera.rotation.z = cam.rz;
 
+      // vitesse de scroll lissée (0..1) — pilote le flou de zoom et les particules
+      const y = window.scrollY;
+      smoothVel += ((Math.min(Math.abs(lastY !== undefined ? y - lastY : 0), 120) / 120) - smoothVel) * 0.08;
+      lastY = y;
+
+      // ---- pont splash : plan vidéo scrubé + flou de zoom + particules ----
+      const splashOn = splash.o > 0.002 && splashEtat.ok;
+      splashPlane.visible = splashOn;
+      if (splashOn) {
+        splashUniforms.uOpacity.value = splash.o;
+        // flou de zoom = gate (fx.blur) × vitesse de scroll → masque la coupe
+        splashUniforms.uBlur.value = fx.blur * (0.045 + smoothVel * 0.16);
+        // échelle : pré-zoomée pour matcher #heroEau à la coupe, puis plein cadre
+        splashPlane.scale.set(splashW * splash.s, splashH * splash.s, 1);
+        if (splashEtat.duree && splashVideo.readyState >= 2) {
+          const cible = Math.round((splash.p * splashEtat.duree) / SPLASH_FRAME) * SPLASH_FRAME;
+          if (Math.abs(cible - splashEtat.dernierT) >= SPLASH_FRAME / 2) {
+            splashVideo.currentTime = Math.min(cible, splashEtat.duree - SPLASH_FRAME);
+            splashEtat.dernierT = cible;
+            // l'upload GPU se fait sur l'événement 'seeked' (voir plus haut)
+          }
+        }
+      }
+      // flou de la vidéo de surface DOM pendant sa sortie (accompagne le morph).
+      // Gaté : uniquement si le pont vidéo est valide (splashEtat.ok) ET #heroEau
+      // encore visible → jamais de flou résiduel sur un élément déjà invisible
+      // (déjà fondu au noir) ni sur le repli « vidéo absente ». Sinon on nettoie.
+      if (heroEauEl) {
+        const eauVisible = splashEtat.ok && parseFloat(heroEauEl.style.opacity || '1') > 0.01;
+        if (eauVisible && fx.blur > 0.002) {
+          heroEauEl.style.filter = `blur(${(fx.blur * (0.6 + smoothVel * 5)).toFixed(2)}px)`;
+        } else if (heroEauEl.style.filter) {
+          heroEauEl.style.filter = '';
+        }
+      }
+
+      const fxOn = (fx.rush > 0.002 || fx.burst > 0.002) && splashEtat.ok;
+      fxGroup.visible = fxOn;
+      if (fxOn) {
+        // flux : les particules montent (on plonge) et filent vers le spectateur
+        const flux = (layer, mul, sway) => {
+          const arr = layer.geo.attributes.position.array;
+          const sp = dt * (2.4 + fx.rush * 9 + fx.burst * 24) * mul;
+          for (let i = 0; i < layer.count; i += 1) {
+            arr[i * 3 + 1] += sp * (0.5 + layer.seed[i]);
+            arr[i * 3 + 2] += sp * (0.7 + layer.seed[i] * 0.6);
+            arr[i * 3] += Math.sin(t * 1.3 + layer.seed[i] * 9) * dt * sway;
+            if (arr[i * 3 + 2] > -0.5) { // passé la caméra → réapparaît au loin
+              const z = -rnd(SPLASH_DIST * 0.5, SPLASH_DIST - 0.6);
+              arr[i * 3 + 2] = z;
+              arr[i * 3] = rnd(-1, 1) * Math.abs(z) * layer.spread * 1.9;
+              arr[i * 3 + 1] = -Math.abs(z) * layer.spread * rnd(0.6, 1.1);
+            }
+          }
+          layer.geo.attributes.position.needsUpdate = true;
+        };
+        flux(rushBulles, 1, 0.6);
+        rushBulles.mat.opacity = Math.min(1, fx.rush * 0.85 + fx.burst * 0.9);
+        rushBulles.mat.size = 0.16 + fx.burst * 0.5;
+        flux(rushTraits, 1.8, 0.2);
+        rushTraits.mat.opacity = Math.min(1, fx.rush * 0.3 + fx.burst * 0.85);
+        lensBulles.forEach((s) => {
+          s.position.y += dt * s.userData.v * (0.6 + fx.rush * 2 + fx.burst * 5);
+          s.position.x += Math.sin(t * 0.6 + s.userData.sway) * dt * 0.4;
+          s.position.z += dt * (0.3 + fx.burst * 2.6);
+          if (s.position.y > 2.4 || s.position.z > -0.4) {
+            s.position.set(rnd(-2.4, 2.4), -rnd(1.4, 2.6), -rnd(1.6, 2.8));
+          }
+          s.material.opacity = Math.min(0.85, fx.rush * 0.5 + fx.burst * 0.7) * (0.5 + s.userData.v * 0.12);
+        });
+      }
+
       // visibilités par zone
-      ocean.visible = cam.y < 420;
       uw.visible = cam.y < 60;
       gal.visible = atmo.galaxy > 0.01;
 
       // particules sous-marines : dérive + réaction à la vitesse de scroll
-      const y = window.scrollY;
-      smoothVel += ((Math.min(Math.abs(lastY !== undefined ? y - lastY : 0), 120) / 120) - smoothVel) * 0.08;
-      lastY = y;
       if (uw.visible) {
         const arr = pGeo.attributes.position.array;
         const rise = dt * (1.2 + smoothVel * 26);
@@ -495,6 +654,8 @@ export function createGalaxie({ renderer, isDesktop = true } = {}) {
       window.removeEventListener('pointermove', onMove);
       triggers.forEach((tr) => tr && tr.kill());
       master.kill(); mtl.kill(); dollyTween.kill(); driftTween.kill();
+      try { splashVideo.pause(); splashVideo.removeAttribute('src'); splashVideo.load(); } catch { /* noop */ }
+      if (heroEauEl) heroEauEl.style.filter = ''; // pas de flou résiduel après teardown
       disposables.forEach((d) => d.dispose?.());
     },
   };

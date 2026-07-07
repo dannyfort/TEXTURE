@@ -1,0 +1,301 @@
+/* ============ IDENT — « LE MOT EST LA MATIÈRE » ============ */
+/* Ouverture 6 s : le wordmark TEXTURE est verrouillé plein cadre,
+   tout le montage vit à l'intérieur des contreformes. 6 beats :
+   eau → slot-machine abstraite → organique → course → feu (drip) → mer,
+   puis la caméra plonge à travers le E final vers l'océan du site. */
+
+.ident {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-loader);
+  /* Masqué tant que sa propre séquence n'a pas démarré : sinon, même
+     z-index que .loader mais plus tard dans le DOM, il peindrait par-
+     dessus l'amorce 3-2-1 et la masquerait. */
+  display: none;
+  place-items: center;
+  background: #030507;
+  overflow: hidden;
+}
+
+.ident.est-actif {
+  display: grid;
+}
+
+.ident.est-fini {
+  display: none;
+}
+
+.ident-scene {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+}
+
+/* Le film rendu (chemin nominal). La timeline DOM sert de secours. */
+.ident-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: none;
+}
+
+.ident.est-video .ident-video {
+  display: block;
+}
+
+.ident.est-video .ident-goo {
+  display: none;
+}
+
+/* Le conteneur goo ne filtre que pendant le beat feu (netteté ailleurs) */
+.ident-goo {
+  position: relative;
+}
+
+.ident-goo.est-goo {
+  filter: url("#identGoo") drop-shadow(0 0 26px rgba(255, 122, 0, 0.35));
+}
+
+.ident-mot {
+  position: relative;
+  white-space: nowrap;
+  line-height: 1;
+  will-change: transform;
+}
+
+.ident-lettre {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-size: min(13vw, 9.4rem);
+  letter-spacing: -0.01em;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  --niveau: 108%;
+}
+
+/* ---- Les matières (fonds procéduraux — remplaçables par de la vidéo
+   générée via mask plus tard, mêmes classes) ---- */
+
+.m-vide {
+  background: none;
+  -webkit-text-stroke: 1px rgba(238, 246, 248, 0.45);
+}
+
+/* l'eau monte dans la lettre : --niveau 108% → -8% */
+.m-eau {
+  -webkit-text-stroke: 1px rgba(238, 246, 248, 0.18);
+  background-image: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) calc(var(--niveau) - 3%),
+    rgba(196, 240, 252, 0.9) var(--niveau),
+    #1173a5 calc(var(--niveau) + 7%),
+    #052a44 calc(var(--niveau) + 42%),
+    #02121f 120%
+  );
+}
+
+.m-nacre {
+  background-image: conic-gradient(
+    from 210deg at 50% 45%,
+    #ff00d0, #7a00ff, #00e5ff, #aaff00, #ff9a00, #ff00d0
+  );
+}
+
+.m-ferro {
+  background-image:
+    radial-gradient(circle at 30% 35%, #4d7dff 0 14%, transparent 26%),
+    radial-gradient(circle at 72% 68%, #2b49b0 0 18%, transparent 32%),
+    radial-gradient(circle at 55% 20%, #0a1e66 0 22%, transparent 40%),
+    linear-gradient(200deg, #0e1430, #04060f);
+}
+
+.m-encre {
+  background-image:
+    radial-gradient(ellipse 40% 60% at 38% 30%, #ff2222 0%, #a80d0d 45%, transparent 75%),
+    radial-gradient(ellipse 50% 70% at 70% 75%, #d81b3c 0%, transparent 65%),
+    linear-gradient(180deg, #3d0505, #120202);
+}
+
+.m-fleur {
+  background-image: radial-gradient(
+    circle at 48% 34%,
+    #ffd6e8 0%, #ff8ac0 22%, #ff5aa0 38%, #c2185b 62%, #4a0824 100%
+  );
+}
+
+.m-soie {
+  background-image: linear-gradient(
+    115deg,
+    #3d2410 0%, #8a5a28 18%, #e8c07a 32%, #6b4318 45%,
+    #c99b52 58%, #402508 74%, #a67c3d 90%, #2c1a08 100%
+  );
+}
+
+.m-grenat {
+  background-image:
+    radial-gradient(circle at 28% 30%, #ff5a66 0 9%, #8f0f1e 12% 15%, transparent 17%),
+    radial-gradient(circle at 62% 55%, #ff3d4d 0 11%, #7a0a18 14% 17%, transparent 19%),
+    radial-gradient(circle at 42% 76%, #e83a48 0 8%, transparent 14%),
+    radial-gradient(circle at 80% 24%, #ff6b74 0 7%, transparent 13%),
+    linear-gradient(180deg, #4a0510, #1d0106);
+}
+
+.m-asphalte {
+  background-image: repeating-radial-gradient(
+    circle at 35% 40%,
+    #4a4a52 0 1px, #17171a 1px 3px, #26262b 3px 4px
+  );
+  background-size: 17px 17px;
+  animation: ident-defile 0.3s linear infinite;
+}
+
+@keyframes ident-defile {
+  to { background-position: -68px 0; }
+}
+
+.m-peau {
+  background-image:
+    radial-gradient(circle at 60% 30%, rgba(255, 244, 230, 0.75) 0 6%, transparent 16%),
+    radial-gradient(circle at 30% 70%, rgba(255, 232, 210, 0.4) 0 8%, transparent 20%),
+    linear-gradient(170deg, #d99a72, #8a4f34 55%, #4a2417)
+  ;
+}
+
+.m-iris {
+  background-image: radial-gradient(
+    circle at 50% 46%,
+    #020a06 0 17%,
+    #1e5c38 20% 27%,
+    #3f9e63 30% 36%,
+    #7fd4a0 38% 42%,
+    #14352a 50% 58%,
+    #041018 72%
+  );
+}
+
+.m-feu {
+  background-image: linear-gradient(
+    0deg,
+    #2d0500 0%, #a81200 22%, #ff3300 42%, #ff9a00 66%, #ffe000 84%, #fff6d8 100%
+  );
+  background-size: 100% 140%;
+  animation: ident-flamme 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes ident-flamme {
+  from { background-position: 0 100%; }
+  to { background-position: 0 55%; }
+}
+
+.m-mer {
+  background-image:
+    radial-gradient(circle at 62% 22%, rgba(143, 208, 214, 0.4) 0 9%, transparent 15%),
+    radial-gradient(circle at 30% 60%, rgba(95, 224, 218, 0.16) 0 12%, transparent 22%),
+    linear-gradient(200deg, #0b4f6e 0%, #062c44 52%, #02101d 100%);
+  background-size: 160% 160%;
+  animation: ident-derive 4s ease-in-out infinite alternate;
+}
+
+@keyframes ident-derive {
+  from { background-position: 0% 30%; }
+  to { background-position: 100% 70%; }
+}
+
+/* ---- Dégoulinade (beat feu) — fusionnée aux lettres par le goo ---- */
+.ident-drip {
+  position: absolute;
+  top: 58%;
+  width: 0.09em;
+  height: 0;
+  font-size: min(13vw, 9.4rem);
+  border-radius: 0 0 999px 999px;
+  background: linear-gradient(#ffe000, #ff7a00 45%, #ff3300 80%, #fff6d8);
+  pointer-events: none;
+}
+
+/* ---- Sortie au scroll : déchirure WebGL (papier qui brûle) ---- */
+.ident-etire {
+  position: absolute;
+  inset: 0;
+  display: none;
+  pointer-events: none;
+}
+
+.ident.est-etire .ident-etire {
+  display: block;
+}
+
+.ident-dechirure {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---- HUD constantes de marque ---- */
+.ident-hud {
+  position: absolute;
+  /* Vertical : dans la zone sûre, sous la barre letterbox haute et au-dessus
+     de la basse (mêmes barres que le reste du site, qui passent devant). */
+  inset: calc(var(--letterbox) + 0.7rem) clamp(16px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+  font-family: var(--font-tc);
+  font-size: var(--text-micro);
+  letter-spacing: 0.14em;
+  color: var(--brume);
+}
+
+.ident-hud > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.ident-rec {
+  color: var(--rec);
+}
+
+.ident-passer {
+  pointer-events: auto;
+  cursor: pointer;
+  color: var(--ecume);
+  opacity: 0.55;
+  transition: opacity var(--duree-vite) var(--ease-sortie);
+}
+
+.ident-passer:hover {
+  opacity: 1;
+}
+
+/* ---- Fondu de plongée : raccord exact avec la surface océan du site ---- */
+.ident-fondu {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--nuit-surface), var(--abysse));
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---- Grain propre à l'ident (au-dessus des matières) ---- */
+.ident-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.11;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ident {
+    display: none;
+  }
+}
