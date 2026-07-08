@@ -1,22 +1,24 @@
 import { gsap } from '../lib/motion.js';
 
 /**
- * TEXTURE STATIC LOGO — une matière par lettre, échanges en cut + flare,
+ * TEXTURE STATIC LOGO — une matière par lettre, cut au survol sous orbe,
  * entrée en rafale, bump 3D au hover.
  *
  * ÉTAT STATIQUE — chaque lettre porte sa matière (vidéo-bande
  * textures-lettres.mp4 : eau, encre, ferro, pivoine, huile, mer, feu).
- * Régulièrement, DEUX lettres échangent leurs matières : cut franc au même
- * photogramme + LENS FLARE (flash bleuté et streak anamorphique) à
- * l'intérieur des deux lettres concernées uniquement.
+ * SURVOL d'une lettre : une orbe de lumière (lens flare bleuté + streak
+ * anamorphique) monte devant elle, masque le cut à son sommet — la lettre
+ * échange alors sa matière avec une autre (inversion) — puis repart plus
+ * lentement en révélant la nouvelle. Aucun cut automatique : seul le hover
+ * déclenche.
  *
  * ENTRÉE (lancerEntreeLogo, déclenchée par ident.js pendant la combustion
  * finale) — les lettres volent depuis le hors-champ en rafale mitraillette,
  * avec motion blur directionnel calculé dans le shader.
  *
- * HOVER — bump 3D fluide : bosse qui suit le curseur (ressort sous-amorti),
- * matière grossie localement (loupe) + éclairage par pseudo-normale
- * (diffus + spéculaire).
+ * HOVER — bump 3D fluide (« zoom gravitationnel ») : bosse qui suit le
+ * curseur (ressort sous-amorti), matière grossie localement (loupe) +
+ * éclairage par pseudo-normale (diffus + spéculaire).
  *
  * Sans WebGL : la vidéo plate masquée en CSS reste affichée, l'entrée se
  * réduit à un fondu rapide.
@@ -48,7 +50,7 @@ uniform vec2 uVels[7];    /* étalement du motion blur par lettre */
 uniform float uB0[7];     /* frontières lettres = frontières bandes */
 uniform float uB1[7];
 uniform float uBande[7];  /* quelle matière chaque lettre affiche (permutation) */
-uniform float uFlash[7];  /* lens flare par lettre (0..1, décroît) */
+uniform float uFlash[7];  /* orbe/lens flare du cut par lettre (0..1) */
 uniform vec2 uOrbe;       /* curseur, espace mot */
 uniform float uBosse;     /* amplitude du bump 0..1 */
 uniform float uAspect;    /* largeur / hauteur du mot */
@@ -113,7 +115,7 @@ void main() {
   c.rgb *= 1.0 + (diff - 0.5) * bosse * 1.1;
   c.rgb += spec * bosse * 0.45;
 
-  /* ---- lens flare du cut : flash bleuté + streak anamorphique ---- */
+  /* ---- orbe du cut : lens flare bleuté + streak anamorphique ---- */
   float streak = exp(-pow((uvm.y - 0.5) * 3.0, 2.0));
   c.rgb += vec3(0.85, 0.95, 1.0) * flash * (0.28 + streak * 0.85);
 
@@ -225,28 +227,59 @@ export function initHero() {
   const orbe = { x: 0.5, y: 0.5 };
   let bosse = 0;
   let bosseV = 0;
+  let masqueData = null;      /* échantillon alpha du masque (hit-test du survol) */
+  let lettreSurvol = -1;      /* lettre survolée courante — le cut se déclenche à la transition */
+  const refroidi = new Float32Array(7); /* anti-rebond par lettre (ms) */
 
-  /* Permutation des matières + flashes de cut. */
+  /* Permutation des matières + orbe de lumière du cut (déclenché au SURVOL). */
   const bandes = new Float32Array([0, 1, 2, 3, 4, 5, 6]);
   const flashes = [0, 0, 0, 0, 0, 0, 0].map(() => ({ v: 0 }));
   const tabFlash = new Float32Array(7);
 
-  /* Échange aléatoire : deux lettres troquent leurs matières en cut franc,
-     lens flare simultané dans les deux lettres. Cadence irrégulière. */
-  const echanger = () => {
-    const a = (Math.random() * 7) | 0;
-    let b = (Math.random() * 7) | 0;
-    if (b === a) b = (b + 1 + ((Math.random() * 6) | 0)) % 7;
-    const tmp = bandes[a];
-    bandes[a] = bandes[b];
-    bandes[b] = tmp;
-    [a, b].forEach((i) => {
-      flashes[i].v = 1;
-      gsap.to(flashes[i], { v: 0, duration: 0.5, ease: 'power2.out', overwrite: true });
-    });
-    gsap.delayedCall(gsap.utils.random(1.4, 3.0), echanger);
+  /* Cut au survol : passer le curseur sur une lettre y fait monter une orbe
+     de lumière ; à son sommet la lettre échange sa matière avec une autre
+     (inversion), puis l'orbe repart plus lentement en révélant la nouvelle.
+     Aucun cut automatique — seul le hover déclenche. */
+  const ORBE_ARRIVEE = 0.34; /* montée : l'orbe vient se poser devant la lettre */
+  const ORBE_DEPART = 0.72;  /* descente, plus lente : révèle la nouvelle matière */
+  const orbeSur = (k) => {
+    const f = flashes[k];
+    gsap.killTweensOf(f);
+    gsap.timeline()
+      .to(f, { v: 1, duration: ORBE_ARRIVEE, ease: 'power2.out' })
+      .to(f, { v: 0, duration: ORBE_DEPART, ease: 'power2.inOut' });
   };
-  gsap.delayedCall(2.2, echanger);
+  const activerCut = (i) => {
+    /* partenaire d'inversion : une autre lettre au hasard. Sa matière change
+       aussi (échange), mais SANS orbe — la lumière n'apparaît que sur la
+       lettre survolée. */
+    let j = (Math.random() * 7) | 0;
+    if (j === i) j = (j + 1 + ((Math.random() * 6) | 0)) % 7;
+    orbeSur(i);
+    /* le cut (inversion des matières) se fait au sommet de l'orbe de la lettre
+       survolée, qui la masque ; le partenaire échange en simple cut */
+    gsap.delayedCall(ORBE_ARRIVEE, () => {
+      const tmp = bandes[i];
+      bandes[i] = bandes[j];
+      bandes[j] = tmp;
+    });
+  };
+
+  /* Alpha du masque au point (u,v) en espace mot : 1 = encre, 0 = vide. */
+  const alphaAt = (u, v) => {
+    if (!masqueData) return 1; /* pas encore échantillonné → on se fie aux bandes */
+    const w = masqueData.width, h = masqueData.height;
+    const x = Math.min(w - 1, Math.max(0, (u * w) | 0));
+    const y = Math.min(h - 1, Math.max(0, (v * h) | 0));
+    return masqueData.data[(y * w + x) * 4 + 3] / 255;
+  };
+  /* Lettre réellement sous le curseur (sur l'encre + dans sa bande), -1 sinon. */
+  const lettreSous = () => {
+    const u = souris.x, v = souris.y;
+    if (u < 0 || u > 1 || v < 0 || v > 1 || alphaAt(u, v) < 0.35) return -1;
+    for (let i = 0; i < 7; i++) if (u >= BORNES[i] && u < BORNES[i + 1]) return i;
+    return -1;
+  };
 
   /* Le masque est requis AVANT d'afficher le canvas. */
   const img = new Image();
@@ -258,6 +291,15 @@ export function initHero() {
     gl.activeTexture(gl.TEXTURE0);
     visuel.classList.add('a-webgl');
     dimensionner();
+    /* échantillon alpha du masque pour le hit-test du survol des lettres */
+    try {
+      const mc = document.createElement('canvas');
+      mc.width = img.naturalWidth;
+      mc.height = img.naturalHeight;
+      const mctx = mc.getContext('2d', { willReadFrequently: true });
+      mctx.drawImage(img, 0, 0);
+      masqueData = mctx.getImageData(0, 0, mc.width, mc.height);
+    } catch { /* hit-test retombe sur les bandes seules */ }
   };
   img.src = '/masques/mot-tight.png';
 
@@ -296,6 +338,18 @@ export function initHero() {
     orbe.y += (souris.y - orbe.y) * suivi;
     bosseV += (((souris.dedans ? 1 : 0) - bosse) * 80 - bosseV * 9) * dt;
     bosse += bosseV * dt;
+
+    /* cut au survol : la lettre sous le curseur déclenche l'orbe + l'inversion,
+       une seule fois par entrée (anti-rebond de bord) */
+    const survol = souris.dedans ? lettreSous() : -1;
+    if (survol !== lettreSurvol) {
+      lettreSurvol = survol;
+      const t = performance.now();
+      if (survol >= 0 && t >= refroidi[survol]) {
+        refroidi[survol] = t + 260;
+        activerCut(survol);
+      }
+    }
 
     for (let i = 0; i < 7; i++) {
       tabOffsets[i * 2] = offsets[i].x;
