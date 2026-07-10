@@ -51,16 +51,19 @@
    Wordmark en continuité EXACTE avec l'ident vidéo : les lettrages sont la
    typo du film (masques/mot-tight.png, extrait du master 1080) — plus de
    texte peint, le vrai texte reste pour l'accessibilité (.visually-hidden).
-   UNE seule vidéo de matière, agrandie plein-mot, n'apparaît qu'à
-   l'intérieur des lettres et change toutes les 2 s :
+   UNE seule matière pour les sept lettres : la nappe de bulles d'eau
+   (bulles.mp4, boucle simple — jamais d'aller-retour) ; au survol l'orbe
+   de lumière révèle une matière aléatoire de la bande textures-lettres :
    1. canvas.titre-canvas — rendu WebGL (sections/hero.js) : masque typo
       échantillonné dans le shader, entrée des lettres depuis le hors-champ
-      avec motion blur, bump 3D au hover. Le canvas DÉBORDE du rect du mot
-      (inset négatifs ↔ constante PAD de hero.js) pour laisser voler les
-      lettres depuis l'extérieur.
-   2. video.titre-textures — la même vidéo, plate + masque CSS : source de
-      texture du shader ET secours affiché tel quel si WebGL indisponible.
-   3. ::after — sheen de verre discret par-dessus, masqué à la typo. */
+      avec motion blur, bump 3D + orbe révélatrice au hover. Le canvas
+      DÉBORDE du rect du mot (inset négatifs ↔ constante PAD de hero.js)
+      pour laisser voler les lettres depuis l'extérieur.
+   2. video.titre-bulles — la nappe de bulles, plate + masque CSS : source
+      de texture du shader ET secours affiché tel quel si WebGL indisponible.
+   3. video.titre-textures — la bande des 7 matières : jamais affichée,
+      source de texture du shader pour les révélations sous l'orbe.
+   4. ::after — sheen de verre discret par-dessus, masqué à la typo. */
 .hero-titre {
   margin: 0;
   line-height: 0;
@@ -76,13 +79,15 @@
   filter: drop-shadow(0 0 70px rgba(140, 200, 215, 0.28));
 }
 
-/* Matières plates (secours sans WebGL, et source du shader). */
-.titre-textures {
+/* La nappe de bulles plate (secours sans WebGL, et source du shader).
+   Cover : seule la bande centrale du 16:9 vit dans le rect du mot — même
+   recadrage que le shader (facteur 0.213 dans hero.js). */
+.titre-bulles {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: fill;
+  object-fit: cover;
   z-index: 1;
   filter: brightness(1.14) saturate(1.12);
   -webkit-mask-image: url('/masques/mot-tight.png');
@@ -91,6 +96,17 @@
   mask-image: url('/masques/mot-tight.png');
   mask-size: 100% 100%;
   mask-repeat: no-repeat;
+}
+
+/* La bande des 7 matières : jamais affichée telle quelle — uniquement
+   source de texture du shader (révélations sous l'orbe). Elle continue de
+   décoder en visibility:hidden. */
+.titre-textures {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  visibility: hidden;
 }
 
 /* Rendu WebGL — déborde du mot (vols hors-champ) ; le masque typo est
@@ -110,7 +126,7 @@
 }
 
 .titre-visuel.a-webgl .titre-canvas { display: block; }
-.titre-visuel.a-webgl .titre-textures { visibility: hidden; } /* continue de décoder (source du shader) */
+.titre-visuel.a-webgl .titre-bulles { visibility: hidden; } /* continue de décoder (source du shader) */
 
 /* Sheen de verre : reflet discret posé SUR les matières — la pointe
    « liquid glass » sans sacrifier la lisibilité. */

@@ -5,6 +5,7 @@ import { playLoader } from './sections/loader.js';
 import { playIdent } from './sections/ident.js';
 import { initHud } from './sections/hud.js';
 import { initHero } from './sections/hero.js';
+import { initMenu } from './sections/menu.js';
 import { initCurseur } from './sections/curseur.js';
 import { initReel } from './sections/reel.js';
 import { initMethode } from './sections/methode.js';
@@ -22,6 +23,7 @@ async function start() {
     document.getElementById('stage')?.remove();
     document.querySelectorAll('.cadre-video').forEach((v) => freezeFrame(v));
     initHud();
+    initMenu(); // accès rapide aux scènes — d'autant plus utile sans le voyage
     initCurseur(); // le point de lumière reste : positionnel, pas animé
     return;
   }
@@ -43,7 +45,8 @@ async function start() {
   const reelTween = initReel({ mode: isDesktop ? 'profondeur' : 'vertical' });
   initMethode();
   initHud();
-  initHero(); // TEXTURE STATIC LOGO (matières, échanges, bump — desktop)
+  initHero(); // TEXTURE STATIC LOGO (bulles, orbe révélatrice, bump — desktop)
+  initMenu(); // hamburger panorama — accessible dès l'amorce
   initCurseur(); // curseur point-de-lumière, sur tout le site
   // Hero, manifeste et révélations (œil/tarifs/générique) sont animés par la
   // scène galaxie.js elle-même (timeline maîtresse + data-reveal).

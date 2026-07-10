@@ -25,6 +25,7 @@
   <link rel="stylesheet" href="/src/styles/sections/oeil.css" />
   <link rel="stylesheet" href="/src/styles/sections/tarifs.css" />
   <link rel="stylesheet" href="/src/styles/sections/generique.css" />
+  <link rel="stylesheet" href="/src/styles/sections/menu.css" />
   <link rel="stylesheet" href="/src/styles/sections/curseur.css" />
 </head>
 <body>
@@ -82,6 +83,30 @@
     <a class="hud-cta" href="mailto:hello@texture.studio">Prendre rendez-vous</a>
   </header>
 
+  <!-- MENU PANORAMA : hamburger discret (deux traits de pellicule), présent
+       dès l'amorce — ouvre l'index des scènes pour l'accès rapide
+       (sections/menu.js). Choisir une scène pendant l'intro la saute. -->
+  <button class="menu-bouton" id="menuBouton" type="button" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="menuPanorama">
+    <span class="menu-ligne" aria-hidden="true"></span>
+    <span class="menu-ligne" aria-hidden="true"></span>
+  </button>
+  <nav class="menu-panorama" id="menuPanorama" aria-hidden="true" aria-label="Accès rapide aux scènes">
+    <p class="menu-sur">TEXTURE — INDEX DES SCÈNES</p>
+    <ol class="menu-scenes">
+      <li><a class="menu-lien" href="#hero"><span class="menu-num">SC.00</span><span class="menu-nom">La surface</span><span class="menu-tc" aria-hidden="true">00:00:00:00</span></a></li>
+      <li><a class="menu-lien" href="#manifeste"><span class="menu-num">SC.01</span><span class="menu-nom">Le manifeste</span><span class="menu-tc" aria-hidden="true">00:00:19:12</span></a></li>
+      <li><a class="menu-lien" href="#realisations"><span class="menu-num">SC.02</span><span class="menu-nom">La bobine</span><span class="menu-tc" aria-hidden="true">00:00:41:06</span></a></li>
+      <li><a class="menu-lien" href="#methode"><span class="menu-num">SC.03</span><span class="menu-nom">La méthode</span><span class="menu-tc" aria-hidden="true">00:01:12:18</span></a></li>
+      <li><a class="menu-lien" href="#oeil"><span class="menu-num">SC.04</span><span class="menu-nom">L'œil</span><span class="menu-tc" aria-hidden="true">00:01:33:00</span></a></li>
+      <li><a class="menu-lien" href="#tarifs"><span class="menu-num">SC.05</span><span class="menu-nom">Les tarifs</span><span class="menu-tc" aria-hidden="true">00:01:52:09</span></a></li>
+      <li><a class="menu-lien" href="#generique"><span class="menu-num">FIN</span><span class="menu-nom">Contact</span><span class="menu-tc" aria-hidden="true">00:02:16:21</span></a></li>
+    </ol>
+    <div class="menu-pied">
+      <a class="menu-mail" href="mailto:hello@texture.studio">hello@texture.studio</a>
+      <p class="menu-geo">43.70°N — 7.27°E · NICE</p>
+    </div>
+  </nav>
+
   <!-- Barres letterbox 2.39:1 -->
   <div class="letterbox letterbox--top" aria-hidden="true"></div>
   <div class="letterbox letterbox--bottom" aria-hidden="true"></div>
@@ -105,15 +130,17 @@
         <section class="hero" id="hero" data-scene="SCÈNE 00 — LA SURFACE" aria-labelledby="hero-titre">
           <div class="hero-inner" id="heroInner">
             <p class="hero-sur">Studio de création publicitaire — IA, regard de réalisateur</p>
-            <!-- TEXTURE STATIC LOGO — une matière par lettre (typo exacte de
-                 l'ident vidéo) ; régulièrement deux lettres échangent leurs
-                 matières en cut + lens flare. Entrée des lettres depuis le
-                 hors-champ pendant la combustion finale, bump 3D au hover
-                 (shader WebGL — sections/hero.js). Vidéo plate masquée en
-                 secours sans WebGL. -->
+            <!-- TEXTURE STATIC LOGO — les sept lettres partagent UNE nappe de
+                 bulles d'eau en boucle simple (typo exacte de l'ident vidéo) ;
+                 au survol, l'orbe de lumière du curseur révèle dans sa fenêtre
+                 une matière aléatoire de la bande textures-lettres.mp4.
+                 Entrée des lettres depuis le hors-champ pendant la combustion
+                 finale, bump 3D au hover (shader WebGL — sections/hero.js).
+                 Vidéo de bulles plate masquée en secours sans WebGL. -->
             <h1 class="hero-titre" id="hero-titre">
               <span class="visually-hidden">TEXTURE</span>
               <span class="titre-visuel" id="titreVisuel" aria-hidden="true">
+                <video class="titre-bulles" id="titreBulles" src="/video/bulles.mp4" autoplay muted loop playsinline preload="auto" disablepictureinpicture></video>
                 <video class="titre-textures" id="titreTextures" src="/video/textures-lettres.mp4" autoplay muted loop playsinline preload="auto" disablepictureinpicture></video>
                 <canvas class="titre-canvas" id="titreCanvas"></canvas>
               </span>
